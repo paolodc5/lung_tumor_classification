@@ -10,7 +10,7 @@ CONFIG = {
     },
     "data": {
         "dataset_path": '/kaggle/input/lung-tumor-full-nod/dataset_lung.xlsx',
-        "train_path": '/kaggle/input/lung-tumor-full-nod/train',
+        "train_path": '/kaggle/input/lung-tumor-full-nod/Data/Train',
         "train_split": 0.8,
         "validation_split": 0.1,
         "test_split": 0.1,

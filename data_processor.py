@@ -1,7 +1,11 @@
 import numpy as np
+
+from config import CONFIG
 from logging_utils import app_logger
 from PIL import Image
 import matplotlib.pyplot as plt
+import scipy.ndimage as ndi
+import cv2
 
 from visualization_utils import visualize_images, visualize_histograms
 
@@ -19,16 +23,20 @@ class DataProcessor:
             raise error
 
         self.data = data.copy()
+        self.range = CONFIG['preprocessing']['clipping_range']
 
 
-
-    def clip_values(self, min_val=-1000, max_val=3000):
+    def clip_values(self):
         """
         Clips the values of the data between min_val and max_val.
         :param min_val: Minimum value for the clipping range
         :param max_val: Maximum value for the clipping range
         """
         # Verifica che min_val sia minore di max_val
+        min_val = self.range[0]
+        max_val = self.range[1]
+        app_logger.debug(f"Clipping values between {min_val} and {max_val}.")
+
         if min_val >= max_val:
             error = ValueError("min_val must be less than max_val for clipping range")
             app_logger.error(str(error))
@@ -38,7 +46,7 @@ class DataProcessor:
         # app_logger.info(f"Values clipped to range [{min_val}, {max_val}].")
 
 
-    def normalize(self, norm_type='standard'):
+    def normalize(self, norm_type=CONFIG['preprocessing']['normalization_type']):
         try:
             if norm_type == "min-max":
                 # Normalizzazione Min-Max: scala l'immagine tra 0 e 1
@@ -53,6 +61,7 @@ class DataProcessor:
                 # Normalizzazione Z-Score: utilizza media e deviazione standard
                 mean = np.mean(self.data)
                 std = np.std(self.data)
+                app_logger.debug(f"Image mean: {mean}, Image std: {std}")
                 if std > 0:  # Evitiamo la divisione per zero
                     self.data = (self.data - mean) / std
                 else:
@@ -73,6 +82,41 @@ class DataProcessor:
             app_logger.error("I did not normalize the images")
             raise
 
+    @staticmethod
+    def median_filtering(data):
+        """
+        Apply a median filter to a batch of images.
+        :param data: Numpy array of shape (n_batch, h, w, 1)
+        :return: Filtered images with the same shape as input.
+        """
+        filtered_data = np.empty_like(data)
+        for i in range(data.shape[0]):
+            # Apply median filter to each image individually
+            filtered_data[i, ..., 0] = ndi.median_filter(data[i, ..., 0], size=5)
+        return filtered_data
+
+    @staticmethod
+    def he(data):
+        """
+        Apply histogram equalization to a batch of images.
+        :param data: Numpy array of shape (n_batch, h, w, 1)
+        :return: Images after histogram equalization with the same shape as input.
+        """
+        equalized_data = np.empty_like(data)
+        for i in range(data.shape[0]):
+            # Convert image to uint8 (required for cv2.equalizeHist)
+            #img_uint8 = cv2.normalize(data[i, ..., 0], None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+            #equalized_data[i, ..., 0] = cv2.equalizeHist(img_uint8)
+            pass
+        return equalized_data
+
+    def apply_pipeline(self):
+        #self.data = self.median_filtering(self.data)
+        #self.data = self.he(self.data)
+        self.clip_values()
+        self.normalize()
+
+
 
 
 if __name__ == '__main__':
@@ -80,19 +124,13 @@ if __name__ == '__main__':
 
     img = Image.open(image_path)
     img_array = np.array(img)
+    print(img_array.shape)
 
     proc = DataProcessor(img_array)
-    proc.clip_values(4,35)
-    proc.normalize(norm_type='min-max')
+    proc.apply_pipeline()
 
-    min_max_norm = proc.data
-
-    proc.normalize(norm_type='z-score')
-    z_score_norm = proc.data
-
-
-    plt.imshow(proc.original_data, cmap='gray')
+    visualize_images([img_array, proc.data], indices=[0, 1], n_images=2)
+    visualize_histograms(img_array, proc.data)
     plt.show()
 
-    visualize_histograms(proc.original_data, min_max_norm)
-    visualize_histograms(proc.original_data, z_score_norm)
+

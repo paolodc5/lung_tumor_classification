@@ -3,7 +3,7 @@ from logging_utils import app_logger
 
 # Assicurati di avere queste classi dal tuo progetto
 from data_loader_class import DataLoader
-from visualization_utils import visualize_images
+from visualization_utils import visualize_images, visualize_histograms
 
 
 def test_data_loader():
@@ -18,6 +18,8 @@ def test_data_loader():
         batch_iterator = iter(data_loader)
         images, labels = next(batch_iterator)
 
+
+
         # Verifica dei dati caricati
         print("=== Test DataLoader ===")
         print(f"Shape delle immagini: {images.shape}")
@@ -28,11 +30,12 @@ def test_data_loader():
         print(f"Primo batch di label (one-hot):\n{labels}")
 
         # Controllo che le immagini siano normalizzate
-        if np.min(images) < 0 or np.max(images) > 1:
-            raise ValueError("Le immagini non sono correttamente normalizzate tra 0 e 1!")
+        #if np.min(images) < 0 or np.max(images) > 1:
+        #    raise ValueError("Le immagini non sono correttamente normalizzate tra 0 e 1!")
 
 
         visualize_images(images, labels)
+        visualize_histograms(images[0],images[1])
 
         app_logger.info("Test del DataLoader completato con successo!")
 

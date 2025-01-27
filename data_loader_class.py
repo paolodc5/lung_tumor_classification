@@ -7,6 +7,8 @@ from data_processor import DataProcessor
 from sklearn.model_selection import train_test_split
 from config import CONFIG
 
+import matplotlib.pyplot as plt
+
 
 class DataLoader:
     def __init__(self, split='train'):
@@ -113,8 +115,7 @@ class DataLoader:
         # Preprocessing (se definito)
         if self.preprocess_fn:
             processor = self.preprocess_fn(images)
-            processor.clip_values(min_val=-1000, max_val=3000)  # Esempio di clipping
-            processor.normalize(norm_type=self.norm_type)  # Normalizzazione Min-Max
+            processor.apply_pipeline()
             images = processor.data
 
         # This is for binary tasks

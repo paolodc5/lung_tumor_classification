@@ -17,19 +17,20 @@ CONFIG = {
         "loss_function": "categorical_crossentropy"
     },
     "data": {
-        "dataset_path": KAGGLE_DATA_PATH,
-        "train_path": KAGGLE_TRAIN_PATH,
+        "dataset_path": LOCAL_DATA_PATH,
+        "train_path": LOCAL_TRAIN_PATH,
         "train_split": 0.8,
         "validation_split": 0.1,
         "test_split": 0.1,
         "shuffle": True,
     },
     "preprocessing": {
-        "resize": (128, 128),
-        "normalization_type": "z-score"
+        "resize": (512, 512),
+        "normalization_type": "z-score",
+        "clipping_range": (-1000, 3000)
     },
     "model": {
-        "input_shape": (128, 128, 1),
+        "input_shape": (512, 512, 1),
         "num_classes": 2,
         "architecture": "custom",  # 'custom' o 'pretrained'
         "pretrained_model": "ResNet50",  # Ignorato se 'architecture' è 'custom'

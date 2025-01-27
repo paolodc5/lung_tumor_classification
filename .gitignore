@@ -1,0 +1,47 @@
+# Ignora i dataset (ad esempio, la cartella data)
+data/
+models/
+results/
+Old_files/
+# Ignora i file di configurazione locali (modificati per percorsi specifici)
+# config.py
+
+# Ignora i file temporanei di Python
+*.pyc
+*.pyo
+__pycache__/
+
+# Ignora i file di log
+*.log
+logs/
+
+# Ignora i file generati dagli editor
+.idea/
+.vscode/
+*.swp
+
+# Ignora i file generati da Jupyter Notebook
+.ipynb_checkpoints/
+
+# Ignora i file di sistema
+.DS_Store
+Thumbs.db
+
+# Ignora le dipendenze installate localmente (es. virtualenv)
+venv/
+.env/
+
+# Ignora i file di modelli salvati
+*.h5
+models/
+checkpoints/
+
+# Ignora gli output di Kaggle o file temporanei
+/kaggle/working/
+*.csv
+*.json
+
+# Ignora i file di pacchetti (es. distribuzioni Python)
+*.egg-info/
+dist/
+build/

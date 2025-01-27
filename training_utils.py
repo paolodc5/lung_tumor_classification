@@ -6,7 +6,7 @@ from config import CONFIG
 
 
 
-def get_callbacks(model, train_generator, val_generator, train_steps, val_steps):
+def get_callbacks():
     """
     Metodo per addestrare il modello con i dati forniti da DataLoader.
     :param model: Modello Keras da addestrare.

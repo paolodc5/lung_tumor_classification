@@ -33,6 +33,7 @@ if __name__ == '__main__':
     model_save_path = CONFIG['output']['save_model_path']
     os.makedirs(model_save_path, exist_ok=True)
 
+    callb = get_callbacks()
     # Addestramento del modello
     app_logger.info("Inizio del training...")
     history = model.fit(
@@ -41,7 +42,7 @@ if __name__ == '__main__':
         epochs=epochs,
         steps_per_epoch=training_steps,
         validation_steps=val_steps,
-        callbacks=get_callbacks,
+        callbacks=callb,
         verbose=1
     )
 

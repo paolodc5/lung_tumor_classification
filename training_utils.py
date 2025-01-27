@@ -185,7 +185,6 @@ def generate_confusion_matrix(true_classes, predicted_classes, class_names, outp
     plt.figure(figsize=(10, 7))
     sns.heatmap(
         conf_matrix, annot=True, fmt='d', cmap='Blues',
-        xticklabels=class_names, yticklabels=class_names
     )
     plt.title("Matrice di Confusione")
     plt.xlabel("Predicted")

@@ -18,11 +18,12 @@ class DataLoader:
         self.dataset_path = CONFIG['data']['dataset_path']
         self.train_path = CONFIG['data']['train_path']
         self.batch_size = CONFIG['training']['batch_size']
-        self.target_image_size = (128,128)
+        self.target_image_size = CONFIG['preprocessing']['resize']
         self.preprocess_fn = DataProcessor
         self.test_size = CONFIG['data']['test_split']
         self.val_size = CONFIG['data']['validation_split']
         self.random_state = CONFIG['general']['seed']
+        self.norm_type = CONFIG['preprocessing']['normalization_type']
 
         # Carica il dataset e dividi in train, test, validation
         full_dataset = pd.read_excel(self.dataset_path)
@@ -87,7 +88,7 @@ class DataLoader:
         if self.preprocess_fn:
             processor = self.preprocess_fn(images)
             processor.clip_values(min_val=-1000, max_val=3000)  # Esempio di clipping
-            processor.normalize(norm_type='min-max')  # Normalizzazione Min-Max
+            processor.normalize(norm_type=self.norm_type)  # Normalizzazione Min-Max
             images = processor.data
 
         # This is for binary tasks

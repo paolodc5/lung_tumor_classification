@@ -1,17 +1,19 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from colorlog import ColoredFormatter
+import tensorflow as tf
+from config import CONFIG
 
 
 class Logger:
-    def __init__(self, name: str = "app_logger", log_file: str = "app.log", level: int = logging.DEBUG):
+    def __init__(self, name: str = "app_logger", log_file: str = CONFIG['logging']['log_file'], level: int = logging.DEBUG):
         self.logger = logging.getLogger(name)
         self.logger.setLevel(level)
 
         if not self.logger.hasHandlers():
             # File handler
             #file_handler = RotatingFileHandler(log_file, maxBytes=5 * 1024 * 1024, backupCount=5)
-            file_handler = logging.FileHandler(log_file,mode="w")
+            file_handler = logging.FileHandler(log_file)
             file_handler.setLevel(level)
             file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
             file_handler.setFormatter(file_formatter)
@@ -43,7 +45,7 @@ class Logger:
 
 def configure_keras_logging(app_logger: logging.Logger):
     """Configura il logger di Keras per inoltrare i log a `app_logger`."""
-    tf_logger = logging.getLogger('tensorflow')
+    tf_logger = tf.get_logger()
     tf_logger.handlers = []
 
     class KerasLogHandler(logging.Handler):

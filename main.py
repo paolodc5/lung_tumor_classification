@@ -1,10 +1,9 @@
 import os
-from tensorflow.python.keras.callbacks import ModelCheckpoint, EarlyStopping
 from logging_utils import app_logger, configure_keras_logging
 from config import CONFIG
 from data_loader_class import DataLoader
 from model import build_model
-
+from training_utils import get_callbacks
 
 
 
@@ -75,12 +74,26 @@ if __name__ == '__main__':
     # Creazione del modello
     model = build_model()
 
+
+    epochs = CONFIG['training']['epochs']
+    # Creazione delle directory se non esistono
+
+    model_save_path = CONFIG['output']['save_model_path']
+    os.makedirs(model_save_path, exist_ok=True)
+
     # Addestramento del modello
-    history = fit_model(model,
-                        train_generator,
-                        val_generator,
-                        training_steps,
-                        val_steps)
+    app_logger.info("Inizio del training...")
+    history = model.fit(
+        train_generator,
+        validation_data=val_generator,
+        epochs=epochs,
+        steps_per_epoch=training_steps,
+        validation_steps=val_steps,
+        callbacks=get_callbacks,
+        verbose=1
+    )
+
+    app_logger.info("Training completato.")
 
     # Salvataggio del modello finale
     final_model_path = os.path.join(CONFIG['output']['save_model_path'], 'final_model.h5')

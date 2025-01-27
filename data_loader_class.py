@@ -7,6 +7,7 @@ from data_processor import DataProcessor
 from sklearn.model_selection import train_test_split
 from config import CONFIG
 
+
 class DataLoader:
     def __init__(self, split='train'):
         """
@@ -55,10 +56,11 @@ class DataLoader:
 
     def __iter__(self):
         """Iteratore per generare batch."""
-        for start_idx in range(0, self.num_samples, self.batch_size):
-            end_idx = min(start_idx + self.batch_size, self.num_samples)
-            batch_rows = self.dataset.iloc[start_idx:end_idx]
-            yield self._load_batch(batch_rows)
+        while True:  # Ciclo infinito per continuare a fornire batch
+            for start_idx in range(0, self.num_samples, self.batch_size):
+                end_idx = min(start_idx + self.batch_size, self.num_samples)
+                batch_rows = self.dataset.iloc[start_idx:end_idx]
+                yield self._load_batch(batch_rows)
 
     def _load_batch(self, batch_rows):
         """Carica e preprocessa un singolo batch."""
@@ -96,20 +98,4 @@ class DataLoader:
 
 
 
-if __name__ == '__main__':
-    DATA_PATH = 'Data'
-    # Percorsi e configurazioni
-    DATASET_PATH = os.path.join(DATA_PATH, 'dataset_lung.xlsx')
-    TRAIN_PATH = os.path.join(DATA_PATH, 'Train')
-    BATCH_SIZE = 16
-    TARGET_IMAGE_SIZE = (128, 128)
-    NUM_CLASSES = 5
-    EPOCHS = 10
 
-    # Inizializzazione del DataLoader
-    data_loader = DataLoader()
-
-    iter(data_loader)
-
-
-    app_logger.info("test completato")

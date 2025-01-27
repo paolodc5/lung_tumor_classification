@@ -11,7 +11,7 @@ class Logger:
         if not self.logger.hasHandlers():
             # File handler
             #file_handler = RotatingFileHandler(log_file, maxBytes=5 * 1024 * 1024, backupCount=5)
-            file_handler = logging.FileHandler(log_file)
+            file_handler = logging.FileHandler(log_file,mode="w")
             file_handler.setLevel(level)
             file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
             file_handler.setFormatter(file_formatter)

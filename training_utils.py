@@ -102,20 +102,31 @@ def evaluate_results(history, model, class_names=None):
 
 def get_test_data_and_labels(test_generator):
     """
-    Estrae i dati e le label vere dal test generator.
+    Estrae i dati e le etichette vere dal test generator.
 
-    :param test_generator: Generatore di test.
-    :return: Tupla (dati_test, label_test).
+    :param test_generator: Generatore di batch per il test set.
+    :return: Tupla contenente tutti i dati di test e tutte le label (test_data, test_labels).
     """
     test_data = []
     test_labels = []
 
     for batch_data, batch_labels in test_generator:
+        # Garantire che sia `batch_data` che `batch_labels` siano array di NumPy
+        batch_data = np.array(batch_data)
+        batch_labels = np.array(batch_labels)
+
+        # Aggiungere i dati e le label alla lista principale
         test_data.append(batch_data)
         test_labels.append(batch_labels)
 
-    test_data = np.vstack(test_data)
-    test_labels = np.vstack(test_labels)
+    # Concatenare i batch invece di impilarli
+    try:
+        test_data = np.concatenate(test_data, axis=0)  # Concatenazione lungo il batch axis
+        test_labels = np.concatenate(test_labels, axis=0)
+    except ValueError as e:
+        error = ValueError(f"Errore durante la concatenazione: {e}")
+        app_logger.error(str(error))
+        raise
 
     return test_data, test_labels
 
@@ -232,6 +243,16 @@ def save_accuracy_plot(accuracy, val_accuracy, output_dir):
     plt.legend()
     plt.savefig(os.path.join(output_dir, "accuracy_plot.png"))
     plt.close()
+
+if __name__ == '__main__':
+    test_generator = iter(DataLoader(split='test'))
+    test_data, test_labels = get_test_data_and_labels(test_generator)
+    print(test_data.shape)
+    print(test_labels.shape)
+
+
+
+
 
 
 

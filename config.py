@@ -9,8 +9,8 @@ CONFIG = {
         "loss_function": "categorical_crossentropy"
     },
     "data": {
-        "dataset_path": os.path.join('Data', 'dataset_lung.xlsx'),
-        "train_path": os.path.join('Data', 'Train'),
+        "dataset_path": '/kaggle/input/lung-tumor-full-nod/dataset_lung.xlsx',
+        "train_path": '/kaggle/input/lung-tumor-full-nod/train',
         "train_split": 0.8,
         "validation_split": 0.1,
         "test_split": 0.1,

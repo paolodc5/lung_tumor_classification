@@ -24,6 +24,7 @@ class DataLoader:
         self.val_size = CONFIG['data']['validation_split']
         self.random_state = CONFIG['general']['seed']
         self.norm_type = CONFIG['preprocessing']['normalization_type']
+        self.test = 0
 
         # Salvataggio/caricamento degli split
         self.split_files = {

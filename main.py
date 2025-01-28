@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
 
     # Salvataggio del modello finale
-    final_model_path = os.path.join(CONFIG['output']['save_model_path'], 'final_model.h5')
+    final_model_path = os.path.join(CONFIG['output']['save_model_path'], 'final_model.keras')
     model.save(final_model_path)
     app_logger.info(f"Modello finale salvato in {final_model_path}")
 

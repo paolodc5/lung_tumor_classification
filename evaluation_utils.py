@@ -48,6 +48,7 @@ def evaluate_results(history, model, class_names=None):
     test_acc = calculate_accuracy_score(test_labels, predicted_classes)
     conf_matrix = generate_confusion_matrix(test_labels, predicted_classes, class_names, output_dir)
     roc_auc = generate_roc_curve(test_labels, predictions, output_dir)
+    print(f"roc auc: {roc_auc}")
 
     # Salva il grafico dell'accuracy
     save_accuracy_plot(acc, val_acc, output_dir)
@@ -107,14 +108,7 @@ def get_predicted_classes(predictions, threshold=0.5):
     :param threshold: Soglia per classificare le probabilità (default: 0.5).
     :return: Array di classi previste (0 o 1).
     """
-    pred = (predictions >= threshold).astype(np.uint8)
-    print(type(pred))
-    print(pred.shape)
-    print(pred.dtype)
-    print(pred)
-
-
-    return pred
+    return (predictions >= threshold).astype(int)
 
 
 def calculate_f1_score(true_classes, predicted_classes):

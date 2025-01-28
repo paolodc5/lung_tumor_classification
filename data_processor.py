@@ -46,6 +46,26 @@ class DataProcessor:
         # app_logger.info(f"Values clipped to range [{min_val}, {max_val}].")
 
 
+    def pre_normalize(self):
+            """
+            Normalizza i dati tra 0 e 255 e li converte in interi a 8 bit (uint8).
+            """
+            # Trova il valore minimo e massimo nei dati
+            data_min = np.min(self.data)
+            data_max = np.max(self.data)
+
+            if data_max > data_min:
+                # Normalizza i dati sulla scala 0-255
+                self.data = (self.data - data_min) / (data_max - data_min)*255
+
+            else:
+                # Se i valori sono costanti, assegna direttamente 0
+                self.data = np.zeros_like(self.data)
+
+            # Converte i dati in interi a 8 bit
+            self.data = self.data.astype(np.uint8)
+
+
     def normalize(self, norm_type=CONFIG['preprocessing']['normalization_type']):
         try:
             if norm_type == "min-max":
@@ -83,17 +103,23 @@ class DataProcessor:
             raise
 
     @staticmethod
-    def median_filtering(data):
+    def median_filtering(data, filter_size=CONFIG['preprocessing']['median_filter_size']):
         """
-        Apply a median filter to a batch of images.
-        :param data: Numpy array of shape (n_batch, h, w, 1)
+        Apply a median filter to a batch of images efficiently using OpenCV.
+        :param data: Numpy array of shape (n_batch, h, w, 1).
+        :param filter_size: Size of the median filter.
         :return: Filtered images with the same shape as input.
         """
+        if len(data.shape) < 4 or data.shape[-1] != 1:
+            raise ValueError("Data must have shape (n_batch, height, width, 1) for median filtering.")
+
+        # Use OpenCV for batch processing
         filtered_data = np.empty_like(data)
         for i in range(data.shape[0]):
-            # Apply median filter to each image individually
-            filtered_data[i, ..., 0] = ndi.median_filter(data[i, ..., 0], size=5)
+            # cv2.medianBlur expects a 2D single-channel image
+            filtered_data[i, ..., 0] = cv2.medianBlur(data[i, ..., 0].astype(np.uint8), filter_size)
         return filtered_data
+
 
     @staticmethod
     def he(data):
@@ -105,16 +131,56 @@ class DataProcessor:
         equalized_data = np.empty_like(data)
         for i in range(data.shape[0]):
             # Convert image to uint8 (required for cv2.equalizeHist)
-            #img_uint8 = cv2.normalize(data[i, ..., 0], None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
-            #equalized_data[i, ..., 0] = cv2.equalizeHist(img_uint8)
-            pass
+            equalized_data[i, ..., 0] = cv2.equalizeHist(data[i, ..., 0].astype(np.uint8))
+
         return equalized_data
 
+    @staticmethod
+    def clahe(data, clip_limit=CONFIG['preprocessing']['clahe_clip_limit'], tile_grid_size=(8, 8)):
+        """
+        Apply CLAHE (Contrast Limited Adaptive Histogram Equalization) to a batch of images.
+        :param data: Numpy array of shape (n_batch, h, w, 1).
+        :param clip_limit: Threshold for contrast limiting.
+        :param tile_grid_size: Size of the grid for the CLAHE algorithm.
+        :return: Images after applying CLAHE with the same shape as input.
+        """
+        # Create a CLAHE object
+        clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=tile_grid_size)
+        equalized_data = np.empty_like(data)
+
+        for i in range(data.shape[0]):
+            # Convert the image to uint8 if necessary
+            #img_uint8 = cv2.normalize(data[i, ..., 0], None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+            # Apply CLAHE
+            equalized_data[i, ..., 0] = clahe.apply(data[i, ..., 0].astype(np.uint8))
+
+        return equalized_data
+
+
+
+
     def apply_pipeline(self):
-        #self.data = self.median_filtering(self.data)
-        #self.data = self.he(self.data)
         self.clip_values()
+        self.pre_normalize()
+        self.data = self.median_filtering(self.data)
+        #self.data = self.he(self.data)
+        self.data = self.clahe(self.data)
         self.normalize()
+
+
+# Fuori dalla classe
+def resize_image(image, target_size):
+    """
+    Ridimensiona un'immagine utilizzando OpenCV.
+    :param image: Numpy array dell'immagine (h, w) o (h, w, 1).
+    :param target_size: Tuple con la dimensione desiderata (height, width).
+    :return: Immagine ridimensionata.
+    """
+    if image.ndim == 2:  # Per immagini con un singolo canale
+        resized = cv2.resize(image, target_size, interpolation=cv2.INTER_LINEAR)
+        return resized[..., np.newaxis]  # Aggiunge nuovamente il canale
+    else:  # Per immagini in scala di grigi senza canale
+        return cv2.resize(image, target_size, interpolation=cv2.INTER_LINEAR)
 
 
 
@@ -124,13 +190,23 @@ if __name__ == '__main__':
 
     img = Image.open(image_path)
     img_array = np.array(img)
+    img_array = img_array[np.newaxis, ..., np.newaxis]
+    img_array = np.concatenate((img_array, img_array, img_array), axis=0)
     print(img_array.shape)
 
+
     proc = DataProcessor(img_array)
+    print(proc.data.shape)
+    print(proc.data.dtype)
+
     proc.apply_pipeline()
 
-    visualize_images([img_array, proc.data], indices=[0, 1], n_images=2)
-    visualize_histograms(img_array, proc.data)
-    plt.show()
+    # img_filt = ndi.median_filter(img_array, size=10)
 
+    visualize_images([img_array[2,...],proc.data[1,...]], indices=[0, 1], n_images=2)
+    visualize_histograms(img_array, proc.data)
+    #plt.imshow(proc.data[0,...], cmap='gray')
+    #plt.show()
+    print(proc.data.shape)
+    print(proc.data.dtype)
 

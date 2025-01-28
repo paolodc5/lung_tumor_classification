@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import nrrd
 from logging_utils import app_logger
-from data_processor import DataProcessor
+from data_processor import DataProcessor, resize_image
 from sklearn.model_selection import train_test_split
 from config import CONFIG
 
@@ -103,9 +103,10 @@ class DataLoader:
                 fullslice_path = os.path.join(self.train_path, fullslice_name)
                 if os.path.isfile(fullslice_path):
                     fullslice_data, _ = nrrd.read(fullslice_path)
-                    fullslice_data = np.resize(fullslice_data, self.target_image_size + (1,))
+                    fullslice_data = resize_image(fullslice_data, self.target_image_size)
+                    #fullslice_data = fullslice_data[...,np.newaxis]
                     images.append(fullslice_data)
-
+                    app_logger.debug(f"sono dentro il _load_batch e dtype è {fullslice_data.dtype}")
             # Label
             labels.append(row['TumorClass'])
 

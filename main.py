@@ -3,7 +3,9 @@ from logging_utils import app_logger, configure_keras_logging
 from config import CONFIG
 from data_loader_class import DataLoader
 from model import build_model
-from training_utils import get_callbacks, global_library_setup, evaluate_results
+from training_utils import get_callbacks, evaluate_results
+from global_utils import global_library_setup
+
 
 if __name__ == '__main__':
 

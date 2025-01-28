@@ -1,4 +1,16 @@
-import os
+
+
+# ENV = detect_environment()
+
+# Configurazione automatica dei percorsi
+# if ENV == "kaggle":
+#     DATA_PATH = "/kaggle/input/lung-tumor-full-nod/dataset_lung.xlsx"
+#     TRAIN_PATH = "/kaggle/input/lung-tumor-full-nod/Data/Train"
+# else:
+#     DATA_PATH = "Data/dataset_lung.xlsx"
+#     TRAIN_PATH = "Data/Train"
+
+
 
 
 LOCAL_DATA_PATH = "Data/dataset_lung.xlsx"
@@ -17,17 +29,19 @@ CONFIG = {
         "loss_function": "categorical_crossentropy"
     },
     "data": {
-        "dataset_path": KAGGLE_DATA_PATH,
-        "train_path": KAGGLE_TRAIN_PATH,
+        "dataset_path": LOCAL_DATA_PATH,
+        "train_path": LOCAL_TRAIN_PATH,
         "train_split": 0.8,
         "validation_split": 0.1,
         "test_split": 0.1,
         "shuffle": True,
     },
     "preprocessing": {
-        "resize": (512, 512),
+        "resize": (234, 234),
         "normalization_type": "z-score",
-        "clipping_range": (-1000, 3000)
+        "clipping_range": (-1000, 3000),
+        "median_filter_size": 5,
+        "clahe_clip_limit": 2.0,
     },
     "model": {
         "input_shape": (512, 512, 1),

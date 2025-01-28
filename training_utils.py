@@ -11,18 +11,7 @@ import seaborn as sns
 import os
 import random
 
-def global_library_setup():
-    seed = CONFIG['general']['seed']
 
-    tf.get_logger().setLevel('ERROR')
-
-    gpus = tf.config.list_physical_devices('GPU')
-    app_logger.info(f"Numero di GPU disponibili: {len(gpus)}")
-
-    tf.random.set_seed(seed)
-    np.random.seed(seed)
-    random.seed(seed)
-    app_logger.info(f"Seed globale impostato per la riproducibilità: {seed}")
 
 def get_callbacks():
     """

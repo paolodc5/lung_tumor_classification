@@ -73,7 +73,7 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
     augmented = tfkl.RandomFlip("horizontal_and_vertical", name="random_flip",seed=seed)(input_prep)  # Random flips
     augmented = tfkl.RandomRotation(0.3, name="random_rotation",seed=seed)(augmented)  # Random rotations
     # augmented = tfkl.RandomShear(x_factor=0.3,y_factor=0.3,seed=seed)(augmented) # Random Shear
-    augmented = tfkl.RandomSharpness(0.3, value_range=(0, 255), name="random_sharpness",seed=seed)(augmented)
+    # augmented = tfkl.RandomSharpness(0.3, value_range=(0, 255), name="random_sharpness",seed=seed)(augmented)
 
 
 

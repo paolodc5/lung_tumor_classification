@@ -29,8 +29,22 @@ else:
     raise ValueError("Loss function not found in the loss dictionary.")
 
 
+
+# tfkl.Resizing(224, 224, name="resize"),  # Resize images to 224x224
+
+def get_augmentation_pipeline():
+    return tfk.Sequential([
+        tfkl.RandomFlip("horizontal_and_vertical", name="random_flip"),  # Flip images both horizontally and vertically
+        tfkl.RandomRotation(0.2, name="random_rotation"),  # Randomly rotate images (20% of 360 degrees)
+        tfkl.RandomShear(0.2, name="random_shear"),  # Apply shear transformation
+    ], name="augmentation_pipeline")
+
+
+
+
+
 def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
-                augmentation=None,
+                augmentation=get_augmentation_pipeline(),
                 input_shape=CONFIG['model']['input_shape'],
                 output_shape=1,
                 pooling='avg',
@@ -46,11 +60,12 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
     inputs = tfk.Input(shape=input_shape, name='input_layer')
 
     if preprocess_input:
-        inputs = preprocess_function(inputs)
+        input_prep = preprocess_function(inputs)
+    else:
+        input_prep = inputs
 
-    # back_adapt = tfkl.Conv2D(3, (3,3), padding='same')(inputs)
-    # back_adapt = tfkl.LayerNormalization()(back_adapt)
-    back_adapt = inputs
+
+    back_adapt = augmentation(input_prep)
 
     # Defining the backbone and calling it
     backbone = backbone(weights="imagenet",
@@ -78,6 +93,10 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
       tl_model.summary(expand_nested=True, show_trainable=True)
 
     return tl_model
+
+
+
+#augmentation = tfk.Sequential([])
 
 
 

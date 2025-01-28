@@ -107,7 +107,14 @@ def get_predicted_classes(predictions, threshold=0.5):
     :param threshold: Soglia per classificare le probabilità (default: 0.5).
     :return: Array di classi previste (0 o 1).
     """
-    return (predictions >= threshold).astype(int)
+    pred = (predictions >= threshold).astype(np.uint8)
+    print(type(pred))
+    print(pred.shape)
+    print(pred.dtype)
+    print(pred)
+
+
+    return pred
 
 
 def calculate_f1_score(true_classes, predicted_classes):

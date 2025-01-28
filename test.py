@@ -269,7 +269,7 @@ def test_evaluate_results(output_dir="./results", mock_data=True):
             "f1_score": f1,
             "test_accuracy": test_acc,
             "confusion_matrix": conf_matrix.tolist(),
-            "roc_auc": roc_auc.tolist()
+            "roc_auc": roc_auc
         }
 
         # Salva il JSON

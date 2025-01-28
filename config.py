@@ -49,7 +49,7 @@ CONFIG = {
         "input_shape": (224, 224, 1),
         "num_classes": 2,
         "backbone": "ConvNextSmall",
-        "preprocess_input": True
+        "preprocess_input": False
     },
     "logging": {
         "log_file": "training.log",

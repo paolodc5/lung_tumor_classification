@@ -15,7 +15,7 @@ backbone_dict = {
 lr = CONFIG['training']['learning_rate']
 # input_shape = CONFIG['model']['input_shape']
 
-def build_model(backbone=backbone_dict["Resnet50"],
+def build_model(backbone=backbone_dict["ConvNextSmall"],
                 augmentation=None,
                 input_shape=CONFIG['model']['input_shape'],
                 output_shape=1,

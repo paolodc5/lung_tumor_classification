@@ -16,6 +16,8 @@ def global_library_setup():
     gpus = tf.config.list_physical_devices('GPU')
     app_logger.info(f"Numero di GPU disponibili: {len(gpus)}")
 
+    app_logger.info(f"Versione di tensorflow: {tf.__version__}")
+
     tf.random.set_seed(seed)
     np.random.seed(seed)
     random.seed(seed)

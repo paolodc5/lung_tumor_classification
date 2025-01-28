@@ -6,7 +6,7 @@ from config import CONFIG
 
 
 class Logger:
-    def __init__(self, name: str = "app_logger", log_file: str = CONFIG['logging']['log_file'], level: int = logging.DEBUG):
+    def __init__(self, name: str = "app_logger", log_file: str = CONFIG['logging']['log_file'], level: int = logging.INFO):
         self.logger = logging.getLogger(name)
         self.logger.setLevel(level)
 

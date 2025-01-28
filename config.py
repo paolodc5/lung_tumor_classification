@@ -52,7 +52,7 @@ CONFIG = {
         "preprocess_input": False
     },
     "logging": {
-        "log_file": "training.log",
+        "log_file": "training.txt",
         "log_level": "INFO",
     },
     "output": {

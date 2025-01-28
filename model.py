@@ -1,4 +1,3 @@
-import tensorflow as tf
 import keras as tfk
 from keras import layers as tfkl
 
@@ -83,6 +82,10 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
                         input_shape=(input_shape[0],input_shape[1],3),
                         pooling=pooling)
     backbone.trainable = False
+    for layer in backbone.layers[-30:]:
+        layer.trainable = True
+
+
     x = backbone(augmented)
 
     x = tfkl.Dropout(0.3, name='dropout')(x)

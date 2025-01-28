@@ -1,4 +1,6 @@
 import numpy as np
+
+from global_utils import global_library_setup
 from logging_utils import app_logger
 
 from data_loader_class import DataLoader
@@ -244,7 +246,8 @@ if __name__ == '__main__':
 
     #test_data_loader()
 
-    train_generator = DataLoader(split='train')
+    #train_generator = DataLoader(split='train')
     #test_generate_split_binary(train_generator)
-    model = build_model()
-    test_untrained_model_predictions(model, train_generator)
+    #model = build_model()
+    #test_untrained_model_predictions(model, train_generator)
+    global_library_setup()

@@ -4,6 +4,7 @@ import numpy as np
 import random
 from config import CONFIG
 from data_loader_class import DataLoader
+from global_utils import conver_dict_to_json
 from logging_utils import app_logger
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc, f1_score
@@ -76,13 +77,14 @@ def evaluate_results(history, model, class_names=None):
 
     # Dizionario di risultati finali
     results = {
-        "accuracy": acc[-1] if acc else None,
-        "val_accuracy": val_acc[-1] if val_acc else None,
-        "f1_score": f1,
+        "final_accuracy": acc[-1] if acc else None,
+        "final_val_accuracy": val_acc[-1] if val_acc else None,
+        "test_f1_score": f1,
         "test_accuracy": test_acc,
         "confusion_matrix": conf_matrix.tolist(),
         "roc_auc": roc_auc
     }
+    conver_dict_to_json(results) # This saves also the file
     app_logger.info(f"Risultati finali salvati correttamente in {output_dir}")
 
     return results

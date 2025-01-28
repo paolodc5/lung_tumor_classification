@@ -35,9 +35,9 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
     if preprocess_input:
         inputs = preprocess_function(inputs)
 
-    back_adapt = tfkl.Conv2D(3, (3,3), padding='same')(inputs)
-    back_adapt = tfkl.LayerNormalization()(back_adapt)
-
+    # back_adapt = tfkl.Conv2D(3, (3,3), padding='same')(inputs)
+    # back_adapt = tfkl.LayerNormalization()(back_adapt)
+    back_adapt = inputs
 
     # Defining the backbone and calling it
     backbone = backbone(weights="imagenet",

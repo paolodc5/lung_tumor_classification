@@ -160,6 +160,28 @@ class DataProcessor:
         return equalized_data
 
 
+    @staticmethod
+    def convert_to_rgb(data):
+        """
+        Converte un array di immagini in formato grayscale in RGB.
+        Ripete il singolo canale su 3 (R, G, B).
+
+        :param data: Array numpy di immagini (n_images, height, width, 1) o (n_images, height, width).
+        :return: Array numpy di immagini (n_images, height, width, 3).
+        """
+        # Assicurati che l'input abbia almeno 3 dimensioni
+        if len(data.shape) == 3:
+            # Aggiungi un asse per simulare il canale
+            images = data[..., np.newaxis]
+
+        if data.shape[-1] != 1:
+            raise ValueError("Le immagini devono essere in formato grayscale con 1 canale.")
+
+        # Ripeti il canale singolo 3 volte per creare un'immagine RGB
+        images_rgb = np.repeat(data, 3, axis=-1)
+
+        return images_rgb
+
 
 
     def apply_pipeline(self):
@@ -169,6 +191,7 @@ class DataProcessor:
         #self.data = self.he(self.data)
         self.data = self.clahe(self.data)
         self.normalize()
+        self.data = self.convert_to_rgb(self.data)
 
 
 # Fuori dalla classe

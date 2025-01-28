@@ -297,7 +297,7 @@ if __name__ == '__main__':
     # images, labels = get_test_data_and_labels(test_generator)
     # test_get_test_data_and_labels(images, labels)
 
-    #test_data_loader()
+    test_data_loader()
 
     #train_generator = DataLoader(split='train')
     #test_generate_split_binary(train_generator)
@@ -305,4 +305,4 @@ if __name__ == '__main__':
     #test_untrained_model_predictions(model, train_generator)
     #global_library_setup()
 
-    test_evaluate_results()
+    # test_evaluate_results()

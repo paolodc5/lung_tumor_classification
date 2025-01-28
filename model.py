@@ -1,7 +1,8 @@
-import keras as tfk
-from keras import layers as tfkl
+from tensorflow import keras as tfk
+import tensorflow.keras.layers as tfkl
 from config import CONFIG
 from logging_utils import app_logger
+
 
 backbone_dict = {
     "efficientnetB2": [tfk.applications.EfficientNetB2, tfk.applications.efficientnet.preprocess_input],
@@ -53,7 +54,7 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
                 metrics=metrics_train,
                 preprocess_input=CONFIG['model']['preprocess_input'],
                 seed=CONFIG['general']['seed'],
-                plot=False):
+                plot=True):
 
 
     # Input layer
@@ -68,9 +69,8 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
     # Augmentation directly integrated as layers
     augmented = tfkl.RandomFlip("horizontal_and_vertical", name="random_flip",seed=seed)(input_prep)  # Random flips
     augmented = tfkl.RandomRotation(0.3, name="random_rotation",seed=seed)(augmented)  # Random rotations
-    # augmented = tfkl.RandomShear(x_factor=0.3,y_factor=0.3,seed=seed)(augmented) # Random Shear
-    # augmented = tfkl.RandomSharpness(0.3, value_range=(0, 255), name="random_sharpness",seed=seed)(augmented)
-
+    augmented = tfkl.RandomShear(x_factor=0.3,y_factor=0.3,seed=seed)(augmented) # Random Shear
+    augmented = tfkl.RandomSharpness(0.3, value_range=(0, 255), name="random_sharpness",seed=seed)(augmented)
 
 
     # Defining the backbone and calling it

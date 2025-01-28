@@ -1,5 +1,3 @@
-from model import build_model
-import tensorflow as tf
 from tensorflow.python.keras.callbacks import ModelCheckpoint, EarlyStopping
 
 

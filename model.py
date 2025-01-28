@@ -22,9 +22,10 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
                 input_shape=CONFIG['model']['input_shape'],
                 output_shape=1,
                 pooling='avg',
+                output_activation='sigmoid',
                 loss_fn = tfk.losses.BinaryCrossentropy(),
                 optimizer=tfk.optimizers.AdamW(lr),
-                metrics=['accuracy'],
+                metrics=['accuracy', tfk.metrics.AUC(name="auc")],
                 preprocess_input=CONFIG['model']['preprocess_input'],
                 plot=True):
 
@@ -54,7 +55,7 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
     x = tfkl.Dropout(0.3, name='dropout_2')(x)
     x = tfkl.BatchNormalization(name='batch_norm_2')(x)
 
-    outputs = tfkl.Dense(output_shape, activation='sigmoid', name='dense')(x)
+    outputs = tfkl.Dense(output_shape, activation=output_activation, name='output')(x)
 
     # Model definition and compiling
     tl_model = tfk.Model(inputs=inputs, outputs=outputs, name='model')

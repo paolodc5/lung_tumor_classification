@@ -234,6 +234,10 @@ def save_accuracy_plot(accuracy, val_accuracy, output_dir):
     plt.savefig(os.path.join(output_dir, "accuracy_plot.png"))
     plt.close()
 
+
+
+
+
 if __name__ == '__main__':
     test_generator = iter(DataLoader(split='test'))
     test_data, test_labels = get_test_data_and_labels(test_generator)

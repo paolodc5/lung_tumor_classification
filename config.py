@@ -25,12 +25,12 @@ CONFIG = {
         "epochs": 50,
         "batch_size": 32,
         "learning_rate": 0.001,
-        "optimizer": "adam",
-        "loss_function": "categorical_crossentropy"
+        "optimizer": "adamW",
+        "loss_function": "binary_crossentropy"
     },
     "data": {
-        "dataset_path": KAGGLE_DATA_PATH,
-        "train_path": KAGGLE_TRAIN_PATH,
+        "dataset_path": KAGGLE_TRAIN_PATH,
+        "train_path": KAGGLE_DATA_PATH,
         "train_split": 0.8,
         "validation_split": 0.1,
         "test_split": 0.1,

@@ -40,18 +40,25 @@ def convert_dict_to_json(d, folder_path=CONFIG["output"]["save_path"], file_name
     :param file_name: Nome del file JSON (default: "output.json").
     """
     try:
-        # Assicurati che la cartella esista
+        # Assicura che la cartella esista
         os.makedirs(folder_path, exist_ok=True)
 
         # Percorso completo del file
         file_path = os.path.join(folder_path, file_name)
 
-        # Scrivi il dizionario in formato JSON nel file
+        # Funzione per gestire oggetti non serializzabili in JSON
+        def json_encoder(obj):
+            if isinstance(obj, np.ndarray):  # Converte ndarray in lista
+                return obj.tolist()
+            raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+
+        # Scrive il dizionario in formato JSON nel file
         with open(file_path, 'w') as json_file:
-            json.dump(d, json_file, indent=4)
+            json.dump(d, json_file, indent=4, default=json_encoder)
 
         print(f"JSON salvato correttamente in {file_path}")
         return file_path
+
     except Exception as e:
         print(f"Errore durante il salvataggio del JSON: {e}")
         raise

@@ -120,7 +120,7 @@ class DataLoader:
             images = processor.data
 
         # This is for binary tasks
-        labels = np.where(labels < 4, 0, 1)
+        labels = np.where(labels < 4, 0, 1).astype(np.float64)
 
         return images, labels
 

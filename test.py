@@ -1,7 +1,6 @@
 import numpy as np
 from logging_utils import app_logger
 
-# Assicurati di avere queste classi dal tuo progetto
 from data_loader_class import DataLoader
 from visualization_utils import visualize_images, visualize_histograms
 
@@ -12,7 +11,7 @@ def test_data_loader():
     """
     try:
         # Inizializzazione del DataLoader
-        data_loader = DataLoader(split='train')
+        data_loader = DataLoader(split='test')
 
         # Genera un batch di dati
         batch_iterator = iter(data_loader)

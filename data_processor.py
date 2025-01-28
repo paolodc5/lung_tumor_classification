@@ -86,7 +86,8 @@ class DataProcessor:
                     self.data = (self.data - mean) / std
                 else:
                     raise ValueError("Image std is less or equal than zero")
-
+            elif norm_type == "None":
+                pass
             else:
                 raise ValueError(f"'{norm_type}' is not a supported scaling type.")
             
@@ -136,7 +137,9 @@ class DataProcessor:
         return equalized_data
 
     @staticmethod
-    def clahe(data, clip_limit=CONFIG['preprocessing']['clahe_clip_limit'], tile_grid_size=(8, 8)):
+    def clahe(data,
+              clip_limit=CONFIG['preprocessing']['clahe_clip_limit'],
+              tile_grid_size=CONFIG['preprocessing']['clahe_tile_grid_size']):
         """
         Apply CLAHE (Contrast Limited Adaptive Histogram Equalization) to a batch of images.
         :param data: Numpy array of shape (n_batch, h, w, 1).
@@ -165,7 +168,7 @@ class DataProcessor:
         self.data = self.median_filtering(self.data)
         #self.data = self.he(self.data)
         self.data = self.clahe(self.data)
-        #self.normalize()
+        self.normalize()
 
 
 # Fuori dalla classe

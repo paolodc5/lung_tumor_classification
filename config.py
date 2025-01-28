@@ -29,8 +29,8 @@ CONFIG = {
         "loss_function": "categorical_crossentropy"
     },
     "data": {
-        "dataset_path": KAGGLE_DATA_PATH,
-        "train_path": KAGGLE_TRAIN_PATH,
+        "dataset_path": LOCAL_DATA_PATH,
+        "train_path": LOCAL_TRAIN_PATH,
         "train_split": 0.8,
         "validation_split": 0.1,
         "test_split": 0.1,
@@ -38,16 +38,17 @@ CONFIG = {
     },
     "preprocessing": {
         "resize": (224, 224),
-        "normalization_type": "z-score",
+        "normalization_type": "None",
         "clipping_range": (-1000, 3000),
         "median_filter_size": 5,
         "clahe_clip_limit": 2.0,
+        "clahe_tile_grid_size": (8, 8),
     },
     "model": {
         "input_shape": (224, 224, 1),
         "num_classes": 2,
-        "architecture": "custom",  # 'custom' o 'pretrained'
-        "pretrained_model": "ResNet50",  # Ignorato se 'architecture' è 'custom'
+        "backbone": "ConvNextSmall",
+        "preprocess_input": True
     },
     "logging": {
         "log_file": "training.log",
@@ -62,6 +63,8 @@ CONFIG = {
         "seed": 42
     }
 }
+
+
 
 
 ## COSE DA CAMBIARE PER RUNNARE IL CODICE IN LOCALE

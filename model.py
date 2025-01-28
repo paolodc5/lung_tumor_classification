@@ -6,16 +6,18 @@ from config import CONFIG
 from logging_utils import app_logger
 
 backbone_dict = {
-    "efficientnetB2": tfk.applications.EfficientNetB2,
-    "Resnet50": tfk.applications.ResNet50,
-    "Resnet101V2": tfk.applications.ResNet101V2,
-    "ConvNextSmall": tfk.applications.ConvNeXtSmall,
+    "efficientnetB2": [tfk.applications.EfficientNetB2, tfk.applications.efficientnet.preprocess_input],
+    "Resnet50": [tfk.applications.ResNet50, tfk.applications.resnet.preprocess_input],
+    "Resnet101V2": [tfk.applications.ResNet101V2, tfk.applications.resnet_v2.preprocess_input],
+    "ConvNextSmall": [tfk.applications.ConvNeXtSmall, tfk.applications.convnext.preprocess_input]
 }
 
 lr = CONFIG['training']['learning_rate']
-# input_shape = CONFIG['model']['input_shape']
+preprocess_function = backbone_dict[CONFIG['model']['backbone']][1]
 
-def build_model(backbone=backbone_dict["ConvNextSmall"],
+
+
+def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
                 augmentation=None,
                 input_shape=CONFIG['model']['input_shape'],
                 output_shape=1,
@@ -23,11 +25,16 @@ def build_model(backbone=backbone_dict["ConvNextSmall"],
                 loss_fn = tfk.losses.BinaryCrossentropy(),
                 optimizer=tfk.optimizers.AdamW(lr),
                 metrics=['accuracy'],
+                preprocess_input=CONFIG['model']['preprocess_input'],
                 plot=True):
 
 
     # Input layer
     inputs = tfk.Input(shape=input_shape, name='input_layer')
+
+    if preprocess_input:
+        inputs = preprocess_function(inputs)
+
     back_adapt = tfkl.Conv2D(3, (3,3), padding='same')(inputs)
     back_adapt = tfkl.LayerNormalization()(back_adapt)
 
@@ -58,8 +65,6 @@ def build_model(backbone=backbone_dict["ConvNextSmall"],
       tl_model.summary(expand_nested=True, show_trainable=True)
 
     return tl_model
-
-
 
 
 

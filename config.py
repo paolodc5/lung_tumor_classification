@@ -26,7 +26,7 @@ CONFIG = {
         "batch_size": 32,
         "learning_rate": 0.001,
         "optimizer": "adamW",
-        "loss_function": "categorical_focal_crossentropy"
+        "loss_function": "binary_crossentropy"
     },
     "data": {
         "dataset_path": KAGGLE_DATA_PATH,

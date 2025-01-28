@@ -57,7 +57,7 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
                         include_top=False,
                         input_shape=(input_shape[0],input_shape[1],3),
                         pooling=pooling)
-    backbone.trainable = True
+    backbone.trainable = False
     x = backbone(back_adapt)
 
     x = tfkl.Dropout(0.3, name='dropout')(x)

@@ -39,9 +39,11 @@ if __name__ == '__main__':
         validation_steps=len(val_loader),
         callbacks=callb,
         verbose=1,
-        class_weight=CONFIG['training']['class_weights']
+        class_weight=CONFIG['data']['class_weights']
     )
     app_logger.info("Training completato.")
+
+
 
     # Salvataggio del modello finale
     final_model_path = os.path.join(CONFIG['output']['save_model_path'], 'final_model.h5')

@@ -53,6 +53,7 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
                 optimizer=tfk.optimizers.AdamW(lr),
                 metrics=['accuracy', tfk.metrics.AUC(name="auc")],
                 preprocess_input=CONFIG['model']['preprocess_input'],
+                seed=CONFIG['general']['seed'],
                 plot=True):
 
 
@@ -65,7 +66,15 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
         input_prep = inputs
 
 
-    back_adapt = augmentation(input_prep)
+    # back_adapt = augmentation(input_prep)
+
+    # Augmentation directly integrated as layers
+
+    augmented = tfkl.RandomFlip("horizontal_and_vertical", name="random_flip",seed=seed)(input_prep)  # Random flips
+    augmented = tfkl.RandomRotation(0.2, name="random_rotation",seed=seed)(augmented)  # Random rotations
+    augmented = tfkl.RandomShear(x_factor=0.3,y_factor=0.3,seed=seed)(augmented) # Random Shear
+
+
 
     # Defining the backbone and calling it
     backbone = backbone(weights="imagenet",
@@ -73,7 +82,7 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
                         input_shape=(input_shape[0],input_shape[1],3),
                         pooling=pooling)
     backbone.trainable = False
-    x = backbone(back_adapt)
+    x = backbone(augmented)
 
     x = tfkl.Dropout(0.3, name='dropout')(x)
     x = tfkl.BatchNormalization(name='batch_norm')(x)

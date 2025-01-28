@@ -12,9 +12,21 @@ backbone_dict = {
     "ConvNextSmall": [tfk.applications.ConvNeXtSmall, tfk.applications.convnext.preprocess_input]
 }
 
+loss_dict = {
+    "binary_crossentropy": tfk.losses.BinaryCrossentropy(),
+    "categorical_crossentropy": tfk.losses.CategoricalCrossentropy(),
+    "categorical_focal_crossentropy": tfk.losses.CategoricalFocalCrossentropy(alpha=CONFIG['data']['class_weights']),
+    "sparse_categorical_crossentropy": tfk.losses.SparseCategoricalCrossentropy(from_logits=True),
+}
+
+
 lr = CONFIG['training']['learning_rate']
 preprocess_function = backbone_dict[CONFIG['model']['backbone']][1]
 
+if CONFIG['training']['loss_function'] in loss_dict.keys():
+    loss_fn = loss_dict[CONFIG['training']['loss_function']]
+else:
+    raise ValueError("Loss function not found in the loss dictionary.")
 
 
 def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
@@ -23,7 +35,7 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
                 output_shape=1,
                 pooling='avg',
                 output_activation='sigmoid',
-                loss_fn = tfk.losses.BinaryCrossentropy(),
+                loss_fn = loss_fn,
                 optimizer=tfk.optimizers.AdamW(lr),
                 metrics=['accuracy', tfk.metrics.AUC(name="auc")],
                 preprocess_input=CONFIG['model']['preprocess_input'],

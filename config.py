@@ -26,7 +26,7 @@ CONFIG = {
         "batch_size": 32,
         "learning_rate": 0.001,
         "optimizer": "adamW",
-        "loss_function": "binary_crossentropy"
+        "loss_function": "categorical_focal_crossentropy"
     },
     "data": {
         "dataset_path": KAGGLE_DATA_PATH,
@@ -35,7 +35,7 @@ CONFIG = {
         "validation_split": 0.1,
         "test_split": 0.1,
         "shuffle": True,
-        "class_weights": {0: 0.6599002849002849, 1: 2.06347438752784}
+        "class_weights": [0.65990028, 2.06347439] # used only if categorical_focal_crossentropy is the loss
     },
     "preprocessing": {
         "resize": (224, 224),

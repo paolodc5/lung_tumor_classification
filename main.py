@@ -39,7 +39,6 @@ if __name__ == '__main__':
         validation_steps=len(val_loader),
         callbacks=callb,
         verbose=1,
-        class_weight=CONFIG['data']['class_weights']
     )
     app_logger.info("Training completato.")
 

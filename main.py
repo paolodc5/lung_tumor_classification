@@ -4,13 +4,14 @@ from config import CONFIG
 from data_loader_class import DataLoader
 from model import build_model
 from training_utils import get_callbacks, evaluate_results
-from global_utils import global_library_setup
-
+from global_utils import global_library_setup, convert_dict_to_json
 
 if __name__ == '__main__':
 
     global_library_setup()
     configure_keras_logging(app_logger)
+    convert_dict_to_json(CONFIG, file_name="config_dict.json") # Saves the configuration of the current run
+
 
     # Inizializzazione dei DataLoader
     train_loader = DataLoader(split='train')

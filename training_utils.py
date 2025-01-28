@@ -4,7 +4,7 @@ import numpy as np
 import random
 from config import CONFIG
 from data_loader_class import DataLoader
-from global_utils import conver_dict_to_json
+from global_utils import convert_dict_to_json
 from logging_utils import app_logger
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc, f1_score
@@ -84,7 +84,7 @@ def evaluate_results(history, model, class_names=None):
         "confusion_matrix": conf_matrix.tolist(),
         "roc_auc": roc_auc
     }
-    conver_dict_to_json(results) # This saves also the file
+    convert_dict_to_json(results) # This saves also the file
     app_logger.info(f"Risultati finali salvati correttamente in {output_dir}")
 
     return results

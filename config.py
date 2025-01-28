@@ -22,7 +22,7 @@ KAGGLE_TRAIN_PATH = "/kaggle/input/lung-tumor-full-nod/Data/Train"
 
 CONFIG = {
     "training": {
-        "epochs": 50,
+        "epochs": 1,
         "batch_size": 32,
         "learning_rate": 0.001,
         "optimizer": "adamW",

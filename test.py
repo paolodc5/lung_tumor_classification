@@ -6,7 +6,10 @@ from logging_utils import app_logger
 from data_loader_class import DataLoader
 from model import build_model
 from visualization_utils import visualize_images, visualize_histograms
-from evaluation_utils import get_test_data_and_labels, get_predicted_classes
+from evaluation_utils import get_test_data_and_labels, get_predicted_classes, evaluate_results, calculate_f1_score, \
+    calculate_accuracy_score, generate_confusion_matrix, generate_roc_curve
+import json
+import os
 
 
 def test_data_loader():
@@ -214,6 +217,7 @@ def test_untrained_model_predictions(model, data_generator, num_batches=3):
             # predicted_classes = np.argmax(predictions, axis=1) if predictions.shape[1] > 1 else (
             #             predictions > 0.5).astype(np.int16).flatten()
             predicted_classes = get_predicted_classes(predictions)
+
             # Conta le classi predette
             unique_classes, counts = np.unique(predicted_classes, return_counts=True)
 
@@ -237,7 +241,56 @@ def test_untrained_model_predictions(model, data_generator, num_batches=3):
         print(f"Errore durante il test: {e}")
         raise
 
+def test_evaluate_results(output_dir="./results", mock_data=True):
+    """
+    Testa la funzione evaluate_results per verificare problemi con il dump di file JSON.
 
+    :param output_dir: Directory in cui salvare i file.
+    :param mock_data: Se True, genera dati simulati per il test.
+    """
+    try:
+        # Simula i dati di test se mock_data è True
+
+        # Simula etichette di test e predizioni
+        test_labels = np.array([0, 1, 1, 0, 1, 0, 1, 0])
+        predicted_classes = np.array([0, 1, 1, 0, 0, 0, 1, 1])
+        predictions = np.array([0.1, 0.8, 0.7, 0.2, 0.4, 0.3, 0.9, 0.6])
+        class_names = None
+
+
+        # Genera metriche (sostituisci con funzioni reali)
+        f1 = calculate_f1_score(test_labels, predicted_classes)
+        test_acc = calculate_accuracy_score(test_labels, predicted_classes)
+        conf_matrix = generate_confusion_matrix(test_labels, predicted_classes, class_names, output_dir)
+        roc_auc = generate_roc_curve(test_labels, predictions, output_dir)
+
+        # Crea risultato in formato dictionary
+        results = {
+            "f1_score": f1,
+            "test_accuracy": test_acc,
+            "confusion_matrix": conf_matrix.tolist(),
+            "roc_auc": roc_auc.tolist()
+        }
+
+        # Salva il JSON
+        output_path = os.path.join(output_dir, "evaluation_results.json")
+
+        # Prova il dump di JSON
+        print("Salvataggio dei risultati in formato JSON...")
+        with open(output_path, "w") as json_file:
+            json.dump(results, json_file, indent=4)
+
+        print(f"SUCCESSO: I risultati sono stati salvati correttamente nel file {output_path}")
+
+        return results
+
+    except json.JSONDecodeError as e:
+        print(f"ERRORE JSON: Problema durante il salvataggio del file JSON. Dettagli: {e}")
+    except FileNotFoundError as e:
+        print(f"ERRORE FILE: Directory o file non trovata. Dettagli: {e}")
+    except Exception as e:
+        print(f"ERRORE GENERICO: Si è verificato un errore. Dettagli: {e}")
+        raise
 
 if __name__ == '__main__':
     # test_generator = DataLoader(split='test')
@@ -250,4 +303,6 @@ if __name__ == '__main__':
     #test_generate_split_binary(train_generator)
     #model = build_model()
     #test_untrained_model_predictions(model, train_generator)
-    global_library_setup()
+    #global_library_setup()
+
+    test_evaluate_results()

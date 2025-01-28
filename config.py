@@ -37,14 +37,14 @@ CONFIG = {
         "shuffle": True,
     },
     "preprocessing": {
-        "resize": (234, 234),
+        "resize": (224, 224),
         "normalization_type": "z-score",
         "clipping_range": (-1000, 3000),
         "median_filter_size": 5,
         "clahe_clip_limit": 2.0,
     },
     "model": {
-        "input_shape": (512, 512, 1),
+        "input_shape": (224, 224, 1),
         "num_classes": 2,
         "architecture": "custom",  # 'custom' o 'pretrained'
         "pretrained_model": "ResNet50",  # Ignorato se 'architecture' è 'custom'

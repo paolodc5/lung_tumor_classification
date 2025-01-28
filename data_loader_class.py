@@ -6,8 +6,7 @@ from logging_utils import app_logger
 from data_processor import DataProcessor, resize_image
 from sklearn.model_selection import train_test_split
 from config import CONFIG
-
-import matplotlib.pyplot as plt
+from sklearn.utils import resample
 
 
 class DataLoader:
@@ -129,18 +128,50 @@ class DataLoader:
         # Genera nuovi split e salvali
         app_logger.info("Generating new split...")
         full_dataset = pd.read_excel(self.dataset_path)
+
+        # Codifica le classi per il task binario
+        full_dataset['BinaryClass'] = np.where(full_dataset['TumorClass'] < 4, 0, 1)
+
+        # Divisione del dataset in training/validation/test con stratificazione basata sulla classe binaria
         train_val_df, self.test_df = train_test_split(
             full_dataset,
             test_size=self.test_size,
             random_state=self.random_state,
-            stratify=full_dataset['TumorClass']
+            stratify=full_dataset['BinaryClass']
         )
         self.train_df, self.val_df = train_test_split(
             train_val_df,
             test_size=self.val_size / (1 - self.test_size),
             random_state=self.random_state,
-            stratify=train_val_df['TumorClass']
+            stratify=train_val_df['BinaryClass']
         )
+
+        # Oversampling per compensare le classi minoritarie nel dataset di training
+        app_logger.info("Applying binary oversampling to balance the training data.")
+        majority_class = self.train_df['BinaryClass'].value_counts().idxmax()
+        max_count = self.train_df['BinaryClass'].value_counts().max()
+
+        balanced_train_dfs = []
+        for class_id, group in self.train_df.groupby('BinaryClass'):
+            if len(group) < max_count:
+                # Oversampling della classe minoritaria
+                oversampled_group = resample(
+                    group,
+                    replace=True,  # Campionamento con duplicati
+                    n_samples=max_count,  # Porta al numero massimo della classe maggioritaria
+                    random_state=self.random_state
+                )
+                balanced_train_dfs.append(oversampled_group)
+            else:
+                # Mantieni la classe maggioritaria invariata
+                balanced_train_dfs.append(group)
+
+        # Concatenazione dei dataframe bilanciati
+        self.train_df = pd.concat(balanced_train_dfs, axis=0).reset_index(drop=True)
+
+        # Shuffle per mescolare le classi
+        self.train_df = self.train_df.sample(frac=1, random_state=self.random_state).reset_index(drop=True)
+
         # Salva gli split
         self.train_df.to_csv(self.split_files['train'], index=False)
         self.val_df.to_csv(self.split_files['val'], index=False)
@@ -149,8 +180,82 @@ class DataLoader:
 
 
 
-    
 
 
 
+# def generate_split_multi(self):
+#     # Genera nuovi split e salvali
+#     app_logger.info("Generating new split...")
+#     full_dataset = pd.read_excel(self.dataset_path)
+#
+#     # Divisione del dataset in training/validation/test con stratificazione
+#     train_val_df, self.test_df = train_test_split(
+#         full_dataset,
+#         test_size=self.test_size,
+#         random_state=self.random_state,
+#         stratify=full_dataset['TumorClass']
+#     )
+#     self.train_df, self.val_df = train_test_split(
+#         train_val_df,
+#         test_size=self.val_size / (1 - self.test_size),
+#         random_state=self.random_state,
+#         stratify=train_val_df['TumorClass']
+#     )
+#
+#     # Oversampling per compensare le classi minoritarie nel dataset di training
+#     app_logger.info("Applying oversampling to balance the training data.")
+#     majority_class = self.train_df['TumorClass'].value_counts().idxmax()
+#     max_count = self.train_df['TumorClass'].value_counts().max()
+#
+#     balanced_train_dfs = []
+#     for class_id, group in self.train_df.groupby('TumorClass'):
+#         if len(group) < max_count:
+#             # Oversampling della classe minoritaria
+#             oversampled_group = resample(
+#                 group,
+#                 replace=True,  # Campionamento con duplicati
+#                 n_samples=max_count,  # Porta al numero massimo della classe maggioritaria
+#                 random_state=self.random_state
+#             )
+#             balanced_train_dfs.append(oversampled_group)
+#         else:
+#             # Mantieni la classe maggioritaria invariata
+#             balanced_train_dfs.append(group)
+#
+#     # Concatenazione dei dataframe bilanciati
+#     self.train_df = pd.concat(balanced_train_dfs, axis=0).reset_index(drop=True)
+#
+#     # Shuffle per mescolare le classi
+#     self.train_df = self.train_df.sample(frac=1, random_state=self.random_state).reset_index(drop=True)
+#
+#     # Salva gli split
+#     self.train_df.to_csv(self.split_files['train'], index=False)
+#     self.val_df.to_csv(self.split_files['val'], index=False)
+#     self.test_df.to_csv(self.split_files['test'], index=False)
+
+
+
+
+
+
+ # def generate_split_no_resampling(self):
+ #        # Genera nuovi split e salvali
+ #        app_logger.info("Generating new split...")
+ #        full_dataset = pd.read_excel(self.dataset_path)
+ #        train_val_df, self.test_df = train_test_split(
+ #            full_dataset,
+ #            test_size=self.test_size,
+ #            random_state=self.random_state,
+ #            stratify=full_dataset['TumorClass']
+ #        )
+ #        self.train_df, self.val_df = train_test_split(
+ #            train_val_df,
+ #            test_size=self.val_size / (1 - self.test_size),
+ #            random_state=self.random_state,
+ #            stratify=train_val_df['TumorClass']
+ #        )
+ #        # Salva gli split
+ #        self.train_df.to_csv(self.split_files['train'], index=False)
+ #        self.val_df.to_csv(self.split_files['val'], index=False)
+ #        self.test_df.to_csv(self.split_files['test'], index=False)
 

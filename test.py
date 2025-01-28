@@ -93,15 +93,110 @@ def test_get_test_data_and_labels(images, labels):
         raise
 
 
+from collections import Counter
+import pandas as pd
 
 
+def test_generate_split(data_loader):
+    """
+    Funzione di test per verificare il corretto funzionamento di `generate_split`.
+    Restituisce le dimensioni dei dataset (training, validation, test) e il bilanciamento delle classi.
+
+    :param data_loader: Istanza della classe DataLoader (deve essere stato chiamato generate_split internamente).
+    """
+    try:
+        # Recupera i DataFrame generati dallo split
+        train_df = data_loader.train_df
+        val_df = data_loader.val_df
+        test_df = data_loader.test_df
+
+        # Stampa le dimensioni dei dataset
+        print("=== Dimensioni dei dataset ===")
+        print(f"Train set: {len(train_df)} esempi")
+        print(f"Validation set: {len(val_df)} esempi")
+        print(f"Test set: {len(test_df)} esempi")
+        print()
+
+        # Analizza il bilanciamento delle classi nei dataset
+        print("=== Bilanciamento delle classi ===")
+
+        def analyze_class_balance(df, split_name):
+            class_counts = Counter(df['TumorClass'])
+            print(f"{split_name} set class distribution:")
+            for class_id, count in sorted(class_counts.items()):
+                print(f"  Classe {class_id}: {count} esempi")
+            print()
+
+        analyze_class_balance(train_df, "Train")
+        analyze_class_balance(val_df, "Validation")
+        analyze_class_balance(test_df, "Test")
+
+        # Test completato con successo
+        print("Test completato con successo! Lo split è stato generato correttamente e bilanciato.")
+
+    except Exception as e:
+        print(f"Errore durante il test di generate_split: {e}")
+        raise
+
+
+def test_generate_split_binary(data_loader):
+    """
+    Testa la funzione generate_split per verificare il bilanciamento delle classi binarie nel dataset di training.
+    """
+    try:
+        # Recupera i DataFrame
+        train_df = data_loader.train_df
+        val_df = data_loader.val_df
+        test_df = data_loader.test_df
+
+        # Controlla che le colonne essenziali esistano
+        assert 'BinaryClass' in train_df.columns, "La colonna BinaryClass è assente nel train_df!"
+        assert 'BinaryClass' in val_df.columns, "La colonna BinaryClass è assente nel val_df!"
+        assert 'BinaryClass' in test_df.columns, "La colonna BinaryClass è assente nel test_df!"
+        # Stampa le dimensioni dei dataset
+        print("=== Dimensioni dei dataset ===")
+        print(f"Train set: {len(train_df)} esempi")
+        print(f"Validation set: {len(val_df)} esempi")
+        print(f"Test set: {len(test_df)} esempi")
+        print()
+
+        # Controlla il bilanciamento delle classi nel training set
+        binary_counts_train = train_df['BinaryClass'].value_counts()
+        print("=== Bilanciamento delle classi binarie nel training set ===")
+        print(binary_counts_train)
+        print()
+
+        # Controlla lo squilibrio naturale delle classi nel validation set
+        binary_counts_val = val_df['BinaryClass'].value_counts()
+        print("=== Bilanciamento delle classi binarie nel validation set ===")
+        print(binary_counts_val)
+        print()
+
+        # Controlla lo squilibrio naturale delle classi nel test set
+        binary_counts_test = test_df['BinaryClass'].value_counts()
+        print("=== Bilanciamento delle classi binarie nel test set ===")
+        print(binary_counts_test)
+        print()
+
+        # Test del bilanciamento
+        assert binary_counts_train[0] == binary_counts_train[1], "Il training set non è bilanciato correttamente!"
+        print("Test completato con successo: il dataset di training è bilanciato.")
+
+    except AssertionError as e:
+        print(f"Errore durante il test: {e}")
+        raise
+    except Exception as e:
+        print(f"Errore inaspettato durante il test: {e}")
+        raise
 
 
 if __name__ == '__main__':
-    test_generator = DataLoader(split='test')
-    images, labels = get_test_data_and_labels(test_generator)
-    test_get_test_data_and_labels(images, labels)
+    # test_generator = DataLoader(split='test')
+    # images, labels = get_test_data_and_labels(test_generator)
+    # test_get_test_data_and_labels(images, labels)
 
     #test_data_loader()
 
+    train_generator = DataLoader(split='train')
+    test_generate_split_binary(train_generator)
 

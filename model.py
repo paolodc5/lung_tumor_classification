@@ -22,6 +22,7 @@ loss_dict = {
 
 lr = CONFIG['training']['learning_rate']
 preprocess_function = backbone_dict[CONFIG['model']['backbone']][1]
+metrics = ['accuracy', tfk.metrics.AUC(name="auc"), tfk.metrics.Precision(), tfk.metrics.Recall()]
 
 if CONFIG['training']['loss_function'] in loss_dict.keys():
     loss_fn = loss_dict[CONFIG['training']['loss_function']]
@@ -51,7 +52,7 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
                 output_activation='sigmoid',
                 loss_fn = loss_fn,
                 optimizer=tfk.optimizers.AdamW(lr),
-                metrics=['accuracy', tfk.metrics.AUC(name="auc")],
+                metrics=metrics,
                 preprocess_input=CONFIG['model']['preprocess_input'],
                 seed=CONFIG['general']['seed'],
                 plot=True):
@@ -72,7 +73,7 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
 
     augmented = tfkl.RandomFlip("horizontal_and_vertical", name="random_flip",seed=seed)(input_prep)  # Random flips
     augmented = tfkl.RandomRotation(0.2, name="random_rotation",seed=seed)(augmented)  # Random rotations
-    augmented = tfkl.RandomShear(x_factor=0.3,y_factor=0.3,seed=seed)(augmented) # Random Shear
+    # augmented = tfkl.RandomShear(x_factor=0.3,y_factor=0.3,seed=seed)(augmented) # Random Shear
 
 
 

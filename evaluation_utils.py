@@ -99,14 +99,15 @@ def get_test_data_and_labels(test_generator):
     return test_data, test_labels
 
 
-def get_predicted_classes(predictions):
+def get_predicted_classes(predictions, threshold=0.5):
     """
-    Ottiene le classi previste come indice degli output con probabilità massima.
+    Ottiene le classi previste per un task di classificazione binaria.
 
-    :param predictions: Output delle previsioni del modello Keras.
-    :return: Array di classi previste (indici).
+    :param predictions: Output delle previsioni del modello Keras (valori di probabilità tra 0 e 1).
+    :param threshold: Soglia per classificare le probabilità (default: 0.5).
+    :return: Array di classi previste (0 o 1).
     """
-    return np.argmax(predictions, axis=1)
+    return (predictions >= threshold).astype(int)
 
 
 def calculate_f1_score(true_classes, predicted_classes):

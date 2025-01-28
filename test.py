@@ -2,8 +2,10 @@ import numpy as np
 from logging_utils import app_logger
 
 from data_loader_class import DataLoader
+from model import build_model
 from visualization_utils import visualize_images, visualize_histograms
-from evaluation_utils import get_test_data_and_labels
+from evaluation_utils import get_test_data_and_labels, get_predicted_classes
+
 
 def test_data_loader():
     """
@@ -190,6 +192,51 @@ def test_generate_split_binary(data_loader):
         raise
 
 
+def test_untrained_model_predictions(model, data_generator, num_batches=3):
+    """
+    Testa un modello non addestrato per assicurarsi che non predica tutte le immagini
+    unicamente come classe "0" o "1" su più batch.
+
+    :param model: Modello Keras/TF non ancora addestrato.
+    :param data_generator: Generatore di dati (e.g., train/test generator).
+    :param num_batches: Numero di batch su cui effettuare il test (default: 3).
+    """
+    try:
+        # Conta i batch caricati e verifica le predizioni
+        batch_count = 0
+        for X_batch, y_batch in data_generator:
+            # Predizioni del modello
+            predictions = model.predict(X_batch)
+
+            # Argmax (nel caso siano classificazioni con softmax/multiclasse o sigmoid per binario)
+            # predicted_classes = np.argmax(predictions, axis=1) if predictions.shape[1] > 1 else (
+            #             predictions > 0.5).astype(np.int16).flatten()
+            predicted_classes = get_predicted_classes(predictions)
+            # Conta le classi predette
+            unique_classes, counts = np.unique(predicted_classes, return_counts=True)
+
+            # Mostra il conteggio delle classi per il batch
+            print(f"Batch {batch_count + 1}: Predizioni {dict(zip(unique_classes, counts))}")
+
+            # Test: Assicurati che non predica sempre una sola classe
+            if len(unique_classes) == 1:
+                print(
+                    f"ERRORE: Il modello non addestrato produce una sola classe ({unique_classes[0]}) nel batch {batch_count + 1}.")
+            else:
+                print(f"SUCCESSO: Il modello non addestrato produce predizioni multiple nel batch {batch_count + 1}.")
+
+            batch_count += 1
+
+            # Ferma dopo il numero di batch definiti
+            if batch_count >= num_batches:
+                break
+
+    except Exception as e:
+        print(f"Errore durante il test: {e}")
+        raise
+
+
+
 if __name__ == '__main__':
     # test_generator = DataLoader(split='test')
     # images, labels = get_test_data_and_labels(test_generator)
@@ -198,5 +245,6 @@ if __name__ == '__main__':
     #test_data_loader()
 
     train_generator = DataLoader(split='train')
-    test_generate_split_binary(train_generator)
-
+    #test_generate_split_binary(train_generator)
+    model = build_model()
+    test_untrained_model_predictions(model, train_generator)

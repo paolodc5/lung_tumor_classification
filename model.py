@@ -31,12 +31,12 @@ else:
 
 
 # tfkl.Resizing(224, 224, name="resize"),  # Resize images to 224x224
+# tfkl.RandomShear(0.2, name="random_shear"),  # Apply shear transformation
 
 def get_augmentation_pipeline():
     return tfk.Sequential([
         tfkl.RandomFlip("horizontal_and_vertical", name="random_flip"),  # Flip images both horizontally and vertically
         tfkl.RandomRotation(0.2, name="random_rotation"),  # Randomly rotate images (20% of 360 degrees)
-        tfkl.RandomShear(0.2, name="random_shear"),  # Apply shear transformation
     ], name="augmentation_pipeline")
 
 

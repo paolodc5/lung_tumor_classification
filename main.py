@@ -3,8 +3,10 @@ from logging_utils import app_logger, configure_keras_logging
 from config import CONFIG
 from data_loader_class import DataLoader
 from model import build_model
-from training_utils import get_callbacks, evaluate_results
+from evaluation_utils import evaluate_results
+from training import get_callbacks
 from global_utils import global_library_setup, convert_dict_to_json
+
 
 if __name__ == '__main__':
 
@@ -36,7 +38,8 @@ if __name__ == '__main__':
         steps_per_epoch=len(train_loader),
         validation_steps=len(val_loader),
         callbacks=callb,
-        verbose=1
+        verbose=1,
+        class_weight=CONFIG['training']['class_weights']
     )
     app_logger.info("Training completato.")
 

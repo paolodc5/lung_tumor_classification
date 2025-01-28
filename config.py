@@ -29,12 +29,13 @@ CONFIG = {
         "loss_function": "binary_crossentropy"
     },
     "data": {
-        "dataset_path": KAGGLE_TRAIN_PATH,
-        "train_path": KAGGLE_DATA_PATH,
+        "dataset_path": KAGGLE_DATA_PATH,
+        "train_path": KAGGLE_TRAIN_PATH,
         "train_split": 0.8,
         "validation_split": 0.1,
         "test_split": 0.1,
         "shuffle": True,
+        "class_weights": {0: 0.6599002849002849, 1: 2.06347438752784}
     },
     "preprocessing": {
         "resize": (224, 224),

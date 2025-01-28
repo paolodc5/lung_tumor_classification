@@ -3,7 +3,7 @@ from logging_utils import app_logger
 
 from data_loader_class import DataLoader
 from visualization_utils import visualize_images, visualize_histograms
-from training_utils import get_test_data_and_labels
+from evaluation_utils import get_test_data_and_labels
 
 def test_data_loader():
     """

@@ -8,11 +8,12 @@ from logging_utils import app_logger
 backbone_dict = {
     "efficientnetB2": tfk.applications.EfficientNetB2,
     "Resnet50": tfk.applications.ResNet50,
-    "Resnet101V2": tfk.applications.ResNet101V2
+    "Resnet101V2": tfk.applications.ResNet101V2,
+    "ConvNextSmall": tfk.applications.ConvNeXtSmall,
 }
 
 lr = CONFIG['training']['learning_rate']
-input_shape = CONFIG['model']['input_shape']
+# input_shape = CONFIG['model']['input_shape']
 
 def build_model(backbone=backbone_dict["Resnet50"],
                 augmentation=None,
@@ -22,19 +23,23 @@ def build_model(backbone=backbone_dict["Resnet50"],
                 loss_fn = tfk.losses.BinaryCrossentropy(),
                 optimizer=tfk.optimizers.AdamW(lr),
                 metrics=['accuracy'],
-                plot=False):
+                plot=True):
 
 
     # Input layer
     inputs = tfk.Input(shape=input_shape, name='input_layer')
     back_adapt = tfkl.Conv2D(3, (3,3), padding='same')(inputs)
+    back_adapt = tfkl.LayerNormalization()(back_adapt)
 
 
     # Defining the backbone and calling it
-    backbone = backbone(weights="imagenet", include_top=False, input_shape=(input_shape[0],input_shape[1],3), pooling=pooling)
+    backbone = backbone(weights="imagenet",
+                        include_top=False,
+                        input_shape=(input_shape[0],input_shape[1],3),
+                        pooling=pooling)
+    backbone.trainable = False
     x = backbone(back_adapt)
 
-    # Extracting features with GAP
     x = tfkl.Dropout(0.3, name='dropout')(x)
     x = tfkl.BatchNormalization(name='batch_norm')(x)
 
@@ -61,4 +66,4 @@ def build_model(backbone=backbone_dict["Resnet50"],
 
 
 if __name__ == '__main__':
-    model = build_model(input_shape= input_shape)
+    model = build_model()

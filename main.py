@@ -42,6 +42,8 @@ if __name__ == '__main__':
         verbose=1,
     )
     app_logger.info("Training completato.")
+    print("Training completato")
+    print("Inizio fine tuning...")
 
     # Fine tuning
     # unfreezing layers
@@ -60,7 +62,8 @@ if __name__ == '__main__':
         callbacks=callb,
         verbose=1,
     )
-
+    app_logger.info("Fine tuning completato.")
+    print("Fine tuning completato")
 
     # Salvataggio del modello finale
     final_model_path = os.path.join(CONFIG['output']['save_model_path'], 'final_model.keras')

@@ -51,10 +51,10 @@ CONFIG = {
         "clahe_tile_grid_size": (20, 20),
         "morph_kernel_size": 2,
         "pipeline":{
-            "cropping": False,
-            "median_filtering": True,
+            "cropping": True,
+            "median_filtering": False,
             "he": False,
-            "clahe": True,
+            "clahe": False,
             "opening": False,
             "closing": False,
             "convert_to_rgb": True

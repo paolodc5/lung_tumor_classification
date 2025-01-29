@@ -30,7 +30,7 @@ class DataProcessor:
         self.do_closing = CONFIG['preprocessing']['pipeline']['closing']
         self.median_filter = CONFIG['preprocessing']['pipeline']['median_filtering']
         self.do_clahe = CONFIG['preprocessing']['pipeline']['clahe']
-        self.he = CONFIG['preprocessing']['pipeline']['he']
+        self.do_he = CONFIG['preprocessing']['pipeline']['he']
         self.cropping = CONFIG['preprocessing']['pipeline']['cropping']
         self.rgb_conv = CONFIG['preprocessing']['pipeline']['convert_to_rgb']
 
@@ -306,7 +306,7 @@ class DataProcessor:
             self.data = self.vertical_crop(self.data)
         if self.median_filter:
             self.data = self.median_filtering(self.data)
-        if self.he:
+        if self.do_he:
             self.data = self.he(self.data)
         if self.do_clahe:
             self.data = self.clahe(self.data)

@@ -40,7 +40,6 @@ CONFIG = {
         "validation_split": 0.1,
         "test_split": 0.1,
         "shuffle": True,
-        "class_weights": [0.65990028, 2.06347439] # used only if categorical_focal_crossentropy is the loss
     },
     "preprocessing": {
         "resize": (224, 224),
@@ -53,10 +52,10 @@ CONFIG = {
         "pipeline":{
             "cropping": True,
             "median_filtering": True,
-            "he": False,
+            "he": True,
             "clahe": True,
-            "opening": False,
-            "closing": False,
+            "opening": True,
+            "closing": True,
             "convert_to_rgb": True
         }
     },

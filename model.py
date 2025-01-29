@@ -8,7 +8,7 @@ backbone_dict = {
     "efficientnetB2": [tfk.applications.EfficientNetB2, tfk.applications.efficientnet.preprocess_input],
     "Resnet50": [tfk.applications.ResNet50, tfk.applications.resnet.preprocess_input],
     "Resnet101V2": [tfk.applications.ResNet101V2, tfk.applications.resnet_v2.preprocess_input],
-    "ConvNextSmall": [tfk.applications.ConvNeXtSmall, tfk.applications.convnext.preprocess_input]
+    "convnext_small": [tfk.applications.ConvNeXtSmall, tfk.applications.convnext.preprocess_input]
 }
 
 loss_dict = {
@@ -30,8 +30,6 @@ else:
 
 
 
-# tfkl.Resizing(224, 224, name="resize"),  # Resize images to 224x224
-# tfkl.RandomShear(0.2, name="random_shear"),  # Apply shear transformation
 
 def get_augmentation_pipeline():
     return tfk.Sequential([

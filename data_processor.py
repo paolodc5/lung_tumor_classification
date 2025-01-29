@@ -25,6 +25,15 @@ class DataProcessor:
         self.data = data.copy()
         self.range = CONFIG['preprocessing']['clipping_range']
 
+        # pipeline
+        self.do_opening = CONFIG['preprocessing']['pipeline']['opening']
+        self.do_closing = CONFIG['preprocessing']['pipeline']['closing']
+        self.median_filter = CONFIG['preprocessing']['pipeline']['median_filtering']
+        self.do_clahe = CONFIG['preprocessing']['pipeline']['clahe']
+        self.he = CONFIG['preprocessing']['pipeline']['he']
+        self.cropping = CONFIG['preprocessing']['pipeline']['cropping']
+        self.rgb_conv = CONFIG['preprocessing']['pipeline']['convert_to_rgb']
+
 
     def clip_values(self):
         """
@@ -224,17 +233,92 @@ class DataProcessor:
 
         return closed_data
 
+    @staticmethod
+    def vertical_crop(data, filter_size=15, kernel_size=5):
+        """
+        Segmenta il corpo principale dell'oggetto e trova la bounding box verticale.
+
+        :param data: Numpy array di immagini (n_batch, height, width, 1).
+        :param filter_size: Dimensione del median filter per ridurre il rumore.
+        :param kernel_size: Dimensione del kernel per il closing.
+        :return: Numpy array con immagini processate.
+        """
+        if len(data.shape) < 4 or data.shape[-1] != 1:
+            raise ValueError("Data must have shape (n_batch, height, width, 1)")
+
+        processed_data = np.empty_like(data)
+
+        for i in range(data.shape[0]):
+            img = data[i, ..., 0]  # Estrai immagine singola
+
+            # Step 1: Filtering per ridurre il rumore
+            img_filtered = cv2.medianBlur(img.astype(np.uint8), filter_size)
+
+            # Step 2: Closing per migliorare la coesione del body
+            kernel = np.ones((kernel_size, kernel_size), np.uint8)
+            img_closed = cv2.morphologyEx(img_filtered, cv2.MORPH_CLOSE, kernel)
+
+            # Step 3: Segmentazione con Otsu thresholding
+            _, img_thresh = cv2.threshold(img_closed, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+            # Step 4: Trova i contorni
+            contours, _ = cv2.findContours(img_thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+            # Se non trova contorni, mantieni l'immagine originale
+            if not contours:
+                processed_data[i, ..., 0] = img
+                continue
+
+            # Step 5: Seleziona il contorno più grande (il "body")
+            largest_contour = max(contours, key=cv2.contourArea)
+
+            # Step 6: Trova la bounding box verticale
+            x, y, w, h = cv2.boundingRect(largest_contour)
+
+            # Step 7: Crop verticale usando la bounding box
+            img_cropped = img[y:y + h, :]
+
+            # Step 8: Resize all'originale
+            img_resized = cv2.resize(img_cropped, (data.shape[2], data.shape[1]), interpolation=cv2.INTER_LINEAR)
+
+            # Debug: mostra la segmentazione e bounding box
+            # plt.figure(figsize=(8, 4))
+            # plt.subplot(1, 2, 1)
+            # plt.imshow(img, cmap="gray")
+            # plt.title("Immagine Originale")
+            # plt.subplot(1, 2, 2)
+            # img_debug = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+            # cv2.rectangle(img_debug, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            # plt.imshow(img_debug, cmap="gray")
+            # plt.title("Bounding Box Segmentation")
+            # plt.show()
+
+            # Salva immagine processata
+            processed_data[i, ..., 0] = img_resized
+
+        return processed_data
+
 
     def apply_pipeline(self):
         self.clip_values()
         self.pre_normalize()
-        self.data = self.median_filtering(self.data)
-        #self.data = self.he(self.data)
-        self.data = self.clahe(self.data)
-        self.data = self.opening(self.data)
-        #self.data = self.closing(self.data)
+        if self.cropping:
+            self.data = self.vertical_crop(self.data)
+        if self.median_filter:
+            self.data = self.median_filtering(self.data)
+        if self.he:
+            self.data = self.he(self.data)
+        if self.do_clahe:
+            self.data = self.clahe(self.data)
+        if self.do_opening:
+            self.data = self.opening(self.data)
+        if self.do_closing:
+            self.data = self.closing(self.data)
         self.normalize()
-        self.data = self.convert_to_rgb(self.data)
+        if self.rgb_conv:
+            self.data = self.convert_to_rgb(self.data)
+
+
 
 
 # Fuori dalla classe

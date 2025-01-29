@@ -39,17 +39,26 @@ CONFIG = {
     },
     "preprocessing": {
         "resize": (224, 224),
-        "normalization_type": "min-max",
+        "normalization_type": "None",
         "clipping_range": (-1000, 3000),
-        "median_filter_size": 5,
-        "clahe_clip_limit": 2.0,
-        "clahe_tile_grid_size": (8, 8),
+        "median_filter_size": 3,
+        "clahe_clip_limit": 5.0,
+        "clahe_tile_grid_size": (5, 5),
         "morph_kernel_size": 3,
+        "pipeline":{
+            "cropping": True,
+            "median_filtering": True,
+            "clahe": True,
+            "he": False,
+            "opening": False,
+            "closing": False,
+            "convert_to_rgb": True
+        }
     },
     "model": {
         "input_shape": (224, 224, 1),
         "num_classes": 2,
-        "backbone": "ConvNextSmall",
+        "backbone": "convnext_small",
         "preprocess_input": False
     },
     "logging": {
@@ -62,7 +71,8 @@ CONFIG = {
     },
     "general":{
         "seed": 42
-    }
+    },
+    "info":"only_median_filtering_and_cropping"
 }
 
 

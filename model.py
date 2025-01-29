@@ -41,8 +41,11 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
     # Input layer
     inputs = tfk.Input(shape=input_shape, name='overall_input_layer')
 
+
+
     if preprocess_input: input_prep = preprocess_function(inputs)
     else: input_prep = inputs
+
 
     # Defining the backbone and calling it
     backbone = backbone(weights="imagenet",include_top=False,input_shape=(input_shape[0],input_shape[1],3),pooling=pooling)
@@ -52,11 +55,11 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
 
     x = backbone(input_prep)
 
-    x = tfkl.Dropout(0.3, name='dropout')(x)
+    x = tfkl.Dropout(0.4, name='dropout')(x)
     x = tfkl.BatchNormalization(name='batch_norm')(x)
 
     x = tfkl.Dense(256, activation='relu', name='dense_1')(x)
-    x = tfkl.Dropout(0.3, name='dropout_2')(x)
+    x = tfkl.Dropout(0.4, name='dropout_2')(x)
     x = tfkl.BatchNormalization(name='batch_norm_2')(x)
 
     outputs = tfkl.Dense(output_shape, activation=output_activation, name='output')(x)
@@ -69,6 +72,12 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
       tl_model.summary(expand_nested=True, show_trainable=True)
 
     return tl_model
+
+
+
+
+
+
 
 
 

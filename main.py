@@ -35,7 +35,7 @@ if __name__ == '__main__':
     history = model.fit(
         iter(train_loader),
         validation_data=iter(val_loader),
-        epochs=CONFIG['training']['epochs'],
+        epochs=10,
         steps_per_epoch=len(train_loader),
         validation_steps=len(val_loader),
         callbacks=callb,

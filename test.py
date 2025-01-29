@@ -6,8 +6,7 @@ from logging_utils import app_logger
 from data_loader_class import DataLoader
 from model import build_model
 from visualization_utils import visualize_images, visualize_histograms
-from evaluation_utils import get_test_data_and_labels, get_predicted_classes, evaluate_results, calculate_f1_score, \
-    calculate_accuracy_score, generate_confusion_matrix, generate_roc_curve
+from evaluation_utils import *
 import json
 import os
 import matplotlib.pyplot as plt
@@ -18,7 +17,7 @@ def test_data_loader():
     """
     try:
         # Inizializzazione del DataLoader
-        data_loader = DataLoader(split='test')
+        data_loader = DataLoader(split='train')
 
         # Genera un batch di dati
         batch_iterator = iter(data_loader)
@@ -257,20 +256,28 @@ def test_evaluate_results(output_dir="./results", mock_data=True):
         predictions = np.array([0.1, 0.8, 0.7, 0.2, 0.4, 0.3, 0.9, 0.6])
         class_names = None
 
-
-        # Genera metriche (sostituisci con funzioni reali)
-        f1 = calculate_f1_score(test_labels, predicted_classes)
+        # Metriche
+        test_f1 = calculate_f1_score(test_labels, predicted_classes)
         test_acc = calculate_accuracy_score(test_labels, predicted_classes)
+        test_precision = calculate_precision_score(test_labels, predicted_classes)
+        test_recall = calculate_recall_score(test_labels, predicted_classes)
         conf_matrix = generate_confusion_matrix(test_labels, predicted_classes, class_names, output_dir)
-        roc_auc = generate_roc_curve(test_labels, predictions, output_dir)
+        test_roc_auc = generate_roc_curve(test_labels, predictions, output_dir)
+        print(f"roc auc: {test_roc_auc}")
 
-        # Crea risultato in formato dictionary
+        # Salva il grafico dell'accuracy
+
+        # Dizionario di risultati finali
         results = {
-            "f1_score": f1,
             "test_accuracy": test_acc,
+            "test_f1_score": test_f1,
+            "test_precision": test_precision,
+            "test_recall": test_recall,
             "confusion_matrix": conf_matrix.tolist(),
-            "roc_auc": roc_auc
+            "roc_auc": test_roc_auc
         }
+        convert_dict_to_json(results)  # This saves also the file
+        app_logger.info(f"Risultati finali salvati correttamente in {output_dir}")
 
         # Salva il JSON
         output_path = os.path.join(output_dir, "evaluation_results.json")
@@ -299,13 +306,13 @@ if __name__ == '__main__':
 
     test_data_loader()
 
-    #train_generator = DataLoader(split='train')
-    #test_generate_split_binary(train_generator)
+    # train_generator = DataLoader(split='train')
+    # test_generate_split_binary(train_generator)
     #model = build_model()
     #test_untrained_model_predictions(model, train_generator)
     #global_library_setup()
 
-    #test_evaluate_results()
+    # test_evaluate_results()
     # iamges,labels = get_test_data_and_labels(test_generator)
     # print(iamges.shape)
     # print(labels.shape)

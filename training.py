@@ -23,7 +23,7 @@ def get_callbacks(config_dict=CONFIG['training']['callbacks']):
 
 def get_augmentation(images, seed=CONFIG['general']['seed']):
     augmentation_layer = tf.keras.Sequential([
-        tf.keras.layers.RandomFlip("horizontal_and_vertical", seed=seed),
+        tf.keras.layers.RandomFlip("horizontal", seed=seed),
         tf.keras.layers.RandomRotation(0.1, fill_mode='constant', fill_value=0, seed=seed),
     ])
     images = augmentation_layer(images, training=True)

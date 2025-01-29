@@ -23,7 +23,7 @@ CONFIG = {
     "training": {
         "epochs": 50,
         "batch_size": 32,
-        "learning_rate": 0.001,
+        "learning_rate": 0.0001,
         "optimizer": "adamW",
         "loss_function": "binary_crossentropy",
         "augmentation": True,
@@ -43,25 +43,25 @@ CONFIG = {
         "class_weights": [0.6,2],
     },
     "preprocessing": {
-        "resize": (256, 256),
+        "resize": (224, 224),
         "normalization_type": "None",
         "clipping_range": (-1000, 3000),
         "median_filter_size": 3,
-        "clahe_clip_limit": 5.0,
-        "clahe_tile_grid_size": (8, 8),
+        "clahe_clip_limit": 7.0,
+        "clahe_tile_grid_size": (20, 20),
         "morph_kernel_size": 2,
         "pipeline":{
             "cropping": True,
             "median_filtering": True,
             "he": False,
             "clahe": True,
-            "opening": True,
+            "opening": False,
             "closing": False,
             "convert_to_rgb": True
         }
     },
     "model": {
-        "input_shape": (256, 256, 3),
+        "input_shape": (224, 224, 3),
         "output_shape": 1,
         "backbone": "convnext_small",
         "preprocess_input": False
@@ -75,7 +75,7 @@ CONFIG = {
         "save_path": "results",
     },
     "general":{
-        "seed": 64
+        "seed": 42
     },
 }
 

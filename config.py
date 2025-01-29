@@ -41,9 +41,10 @@ CONFIG = {
         "resize": (224, 224),
         "normalization_type": "None",
         "clipping_range": (-1000, 3000),
-        "median_filter_size": 3,
+        "median_filter_size": 5,
         "clahe_clip_limit": 5.0,
         "clahe_tile_grid_size": (8, 8),
+        "morph_kernel_size": 5,
     },
     "model": {
         "input_shape": (224, 224, 1),
@@ -67,5 +68,3 @@ CONFIG = {
 
 
 
-## COSE DA CAMBIARE PER RUNNARE IL CODICE IN LOCALE
-# dataset_path e train_path

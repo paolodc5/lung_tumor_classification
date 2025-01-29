@@ -183,6 +183,47 @@ class DataProcessor:
         return images_rgb
 
 
+    @staticmethod
+    def opening(data, kernel_size=CONFIG['preprocessing']['morph_kernel_size']):
+        """
+        Applica l'operazione di apertura (opening) a un batch di immagini.
+
+        :param data: Numpy array di immagini (n_batch, h, w, 1).
+        :param kernel_size: Dimensione del kernel strutturante.
+        :return: Immagini processate con opening.
+        """
+        if len(data.shape) < 4 or data.shape[-1] != 1:
+            raise ValueError("Data must have shape (n_batch, height, width, 1) for morphological operations.")
+
+        kernel = np.ones((kernel_size, kernel_size), np.uint8)
+        opened_data = np.empty_like(data)
+
+        for i in range(data.shape[0]):
+            opened_data[i, ..., 0] = cv2.morphologyEx(data[i, ..., 0], cv2.MORPH_OPEN, kernel)
+
+        return opened_data
+
+
+    @staticmethod
+    def closing(data, kernel_size=CONFIG['preprocessing']['morph_kernel_size']):
+        """
+        Applica l'operazione di chiusura (closing) a un batch di immagini.
+
+        :param data: Numpy array di immagini (n_batch, h, w, 1).
+        :param kernel_size: Dimensione del kernel strutturante.
+        :return: Immagini processate con closing.
+        """
+        if len(data.shape) < 4 or data.shape[-1] != 1:
+            raise ValueError("Data must have shape (n_batch, height, width, 1) for morphological operations.")
+
+        kernel = np.ones((kernel_size, kernel_size), np.uint8)
+        closed_data = np.empty_like(data)
+
+        for i in range(data.shape[0]):
+            closed_data[i, ..., 0] = cv2.morphologyEx(data[i, ..., 0], cv2.MORPH_CLOSE, kernel)
+
+        return closed_data
+
 
     def apply_pipeline(self):
         self.clip_values()
@@ -190,6 +231,8 @@ class DataProcessor:
         self.data = self.median_filtering(self.data)
         self.data = self.he(self.data)
         self.data = self.clahe(self.data)
+        self.data = self.opening(self.data)
+        self.data = self.closing(self.data)
         self.normalize()
         self.data = self.convert_to_rgb(self.data)
 

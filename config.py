@@ -47,16 +47,16 @@ CONFIG = {
         "normalization_type": "None",
         "clipping_range": (-1000, 3000),
         "median_filter_size": 3,
-        "clahe_clip_limit": 5.0,
-        "clahe_tile_grid_size": (5, 5),
-        "morph_kernel_size": 3,
+        "clahe_clip_limit": 7.0,
+        "clahe_tile_grid_size": (20, 20),
+        "morph_kernel_size": 2,
         "pipeline":{
             "cropping": True,
             "median_filtering": True,
-            "he": True,
+            "he": False,
             "clahe": True,
-            "opening": True,
-            "closing": True,
+            "opening": False,
+            "closing": False,
             "convert_to_rgb": True
         }
     },

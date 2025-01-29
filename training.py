@@ -1,7 +1,6 @@
 from tensorflow.python.keras.callbacks import ModelCheckpoint, EarlyStopping
 
 
-
 def get_callbacks():
     """
     Metodo per addestrare il modello con i dati forniti da DataLoader.
@@ -17,6 +16,11 @@ def get_callbacks():
         verbose=1
     )
     return [early_stopping]
+
+
+
+
+
 
 
 

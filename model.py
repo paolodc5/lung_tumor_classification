@@ -108,6 +108,69 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
 
 
 
+class CustomModel(tfk.Model):
+    def __init__(self, backbone, input_shape, output_shape, preprocess_function, pooling='avg',
+                 output_activation='sigmoid', seed=42):
+        super(CustomModel, self).__init__()
+
+        # Salviamo i parametri principali
+        self.preprocess_function = preprocess_function
+        self.seed = seed
+
+        # Data augmentation layers
+        self.augmentation = tfk.Sequential([
+            tfkl.RandomFlip("horizontal_and_vertical", name="random_flip", seed=seed),
+            tfkl.RandomRotation(0.3, name="random_rotation", seed=seed),
+            tfkl.RandomSharpness(0.3, value_range=(0, 255), name="random_sharpness", seed=seed)
+        ], name="augmentation_pipeline")
+
+        # Backbone (base model)
+        self.backbone = backbone(weights="imagenet",
+                                 include_top=False,
+                                 input_shape=(input_shape[0], input_shape[1], 3),
+                                 pooling=pooling)
+        self.backbone.trainable = False
+        for layer in self.backbone.layers[-30:]:
+            layer.trainable = True
+
+        # Additional layers after the backbone
+        self.dropout1 = tfkl.Dropout(0.3, name='dropout_1')
+        self.batch_norm1 = tfkl.BatchNormalization(name='batch_norm_1')
+        self.dense1 = tfkl.Dense(256, activation='relu', name='dense_1')
+
+        self.dropout2 = tfkl.Dropout(0.3, name='dropout_2')
+        self.batch_norm2 = tfkl.BatchNormalization(name='batch_norm_2')
+        self.output_layer = tfkl.Dense(output_shape, activation=output_activation, name='output')
+
+    def call(self, inputs, training=False):
+        # Preprocessing step
+        if self.preprocess_function:
+            x = self.preprocess_function(inputs)
+        else:
+            x = inputs
+
+        # Augmentation (applied during training only)
+        if training:
+            x = self.augmentation(x)
+
+        # Backbone processing
+        x = self.backbone(x, training=training)
+
+        # Additional layers
+        x = self.dropout1(x, training=training)
+        x = self.batch_norm1(x, training=training)
+        x = self.dense1(x)
+
+        x = self.dropout2(x, training=training)
+        x = self.batch_norm2(x, training=training)
+        outputs = self.output_layer(x)
+
+        return outputs
+
+
+
+
+
 
 if __name__ == '__main__':
     model = build_model()

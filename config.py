@@ -41,7 +41,7 @@ CONFIG = {
         "resize": (224, 224),
         "normalization_type": "None",
         "clipping_range": (-1000, 3000),
-        "median_filter_size": 5,
+        "median_filter_size": 7,
         "clahe_clip_limit": 2.0,
         "clahe_tile_grid_size": (8, 8),
     },

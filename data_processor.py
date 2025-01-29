@@ -330,7 +330,7 @@ def resize_image(image, target_size):
     :return: Immagine ridimensionata.
     """
     if image.ndim == 2:  # Per immagini con un singolo canale
-        resized = cv2.resize(image, target_size, interpolation=cv2.INTER_LINEAR)
+        resized = cv2.resize(image, target_size, interpolation=cv2.INTER_CUBIC)
         return resized[..., np.newaxis]  # Aggiunge nuovamente il canale
     else:  # Per immagini in scala di grigi senza canale
         return cv2.resize(image, target_size, interpolation=cv2.INTER_LINEAR)

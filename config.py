@@ -43,25 +43,25 @@ CONFIG = {
         "class_weights": [0.6,2],
     },
     "preprocessing": {
-        "resize": (512, 512),
+        "resize": (224, 224),
         "normalization_type": "None",
         "clipping_range": (-1000, 3000),
-        "median_filter_size": 5,
+        "median_filter_size": 3,
         "clahe_clip_limit": 7.0,
         "clahe_tile_grid_size": (20, 20),
         "morph_kernel_size": 2,
         "pipeline":{
             "cropping": True,
             "median_filtering": False,
-            "he": False,
-            "clahe": False,
+            "he": True,
+            "clahe": True,
             "opening": False,
             "closing": False,
             "convert_to_rgb": True
         }
     },
     "model": {
-        "input_shape": (512, 512, 1),
+        "input_shape": (224, 224, 1),
         "output_shape": 1,
         "backbone": "convnext_small",
         "preprocess_input": False

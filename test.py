@@ -18,7 +18,7 @@ def test_data_loader():
     """
     try:
         # Inizializzazione del DataLoader
-        data_loader = DataLoader(split='train')
+        data_loader = DataLoader(split='test')
 
         # Genera un batch di dati
         batch_iterator = iter(data_loader)

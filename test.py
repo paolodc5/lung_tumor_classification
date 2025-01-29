@@ -10,7 +10,7 @@ from evaluation_utils import get_test_data_and_labels, get_predicted_classes, ev
     calculate_accuracy_score, generate_confusion_matrix, generate_roc_curve
 import json
 import os
-
+import matplotlib.pyplot as plt
 
 def test_data_loader():
     """
@@ -306,3 +306,13 @@ if __name__ == '__main__':
     #global_library_setup()
 
     #test_evaluate_results()
+    # iamges,labels = get_test_data_and_labels(test_generator)
+    # print(iamges.shape)
+    # print(labels.shape)
+    # plt.imshow(iamges[200])
+    # plt.show()
+    #
+    #
+    #
+    # print("Test completato con successo!")
+

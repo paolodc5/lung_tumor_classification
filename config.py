@@ -34,8 +34,8 @@ CONFIG = {
         }
     },
     "data": {
-        "dataset_path": KAGGLE_DATA_PATH,
-        "train_path": KAGGLE_TRAIN_PATH,
+        "dataset_path": LOCAL_DATA_PATH,
+        "train_path": LOCAL_TRAIN_PATH,
         "train_split": 0.8,
         "validation_split": 0.1,
         "test_split": 0.1,
@@ -46,13 +46,13 @@ CONFIG = {
         "resize": (224, 224),
         "normalization_type": "None",
         "clipping_range": (-1000, 3000),
-        "median_filter_size": 3,
+        "median_filter_size": 5,
         "clahe_clip_limit": 7.0,
         "clahe_tile_grid_size": (20, 20),
         "morph_kernel_size": 2,
         "pipeline":{
-            "cropping": True,
-            "median_filtering": True,
+            "cropping": False,
+            "median_filtering": False,
             "he": False,
             "clahe": True,
             "opening": False,

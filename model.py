@@ -39,7 +39,7 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
                 plot=True):
 
     # Input layer
-    inputs = tfk.Input(shape=input_shape, name='input_layer')
+    inputs = tfk.Input(shape=input_shape, name='overall_input_layer')
 
     if preprocess_input: input_prep = preprocess_function(inputs)
     else: input_prep = inputs

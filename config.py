@@ -40,6 +40,7 @@ CONFIG = {
         "validation_split": 0.1,
         "test_split": 0.1,
         "shuffle": True,
+        "class_weights": [0.6,2],
     },
     "preprocessing": {
         "resize": (224, 224),

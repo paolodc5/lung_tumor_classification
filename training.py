@@ -4,17 +4,17 @@ import tensorflow as tf
 from config import CONFIG
 
 
-def get_callbacks():
+def get_callbacks(config_dict=CONFIG['training']['callbacks']):
     """
     Metodo per addestrare il modello con i dati forniti da DataLoader.
     :param model: Modello Keras da addestrare.
     :param train_generator: DataLoader per il training.
     :param val_generator: DataLoader per la validazione.
     """
-
+    patience = config_dict['early_stopping']['patience']
     early_stopping = EarlyStopping(
         monitor='val_loss',
-        patience=10,
+        patience=patience,
         restore_best_weights=True,
         verbose=1
     )

@@ -23,10 +23,15 @@ CONFIG = {
     "training": {
         "epochs": 50,
         "batch_size": 32,
-        "learning_rate": 0.001,
+        "learning_rate": 0.0001,
         "optimizer": "adamW",
         "loss_function": "binary_crossentropy",
-        "augmentation": True
+        "augmentation": True,
+        "callbacks":{
+            "early_stopping": {
+                "patience": 20,
+            },
+        }
     },
     "data": {
         "dataset_path": KAGGLE_DATA_PATH,
@@ -72,7 +77,6 @@ CONFIG = {
     "general":{
         "seed": 42
     },
-    "info":"only_median_filtering_and_cropping"
 }
 
 

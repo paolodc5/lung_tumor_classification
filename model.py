@@ -47,7 +47,7 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
     # Defining the backbone and calling it
     backbone = backbone(weights="imagenet",include_top=False,input_shape=(input_shape[0],input_shape[1],3),pooling=pooling)
     backbone.trainable = False
-    for layer in backbone.layers[-30:]:
+    for layer in backbone.layers[-10:]:
         layer.trainable = True
 
     x = backbone(input_prep)

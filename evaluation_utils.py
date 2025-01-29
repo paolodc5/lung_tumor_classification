@@ -6,7 +6,7 @@ from data_loader_class import DataLoader
 from global_utils import convert_dict_to_json
 from logging_utils import app_logger
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc, f1_score
+from sklearn.metrics import confusion_matrix, roc_curve, auc, f1_score, precision_score, recall_score
 import seaborn as sns
 import os
 
@@ -36,31 +36,47 @@ def evaluate_results(history, model, class_names=None):
     test_data, test_labels = get_test_data_and_labels(test_generator)
 
     # Calcola accuracy e validation accuracy
-    acc = history.history.get('accuracy', [])
+    train_acc = history.history.get('accuracy', [])
     val_acc = history.history.get('val_accuracy', [])
+    train_f1 = history.history.get('f1_score', [])
+    val_f1 = history.history.get('val_f1_score', [])
+    train_precision = history.history.get('precision', [])
+    val_precision = history.history.get('val_precision', [])
+    train_recall = history.history.get('recall', [])
+    val_recall = history.history.get('val_recall', [])
 
     # Previsioni del modello
     predictions = model.predict(test_data)
     predicted_classes = get_predicted_classes(predictions)
 
     # Metriche
-    f1 = calculate_f1_score(test_labels, predicted_classes)
+    test_f1 = calculate_f1_score(test_labels, predicted_classes)
     test_acc = calculate_accuracy_score(test_labels, predicted_classes)
+    test_precision = calculate_precision_score(test_labels, predicted_classes)
+    test_recall = calculate_recall_score(test_labels, predicted_classes)
     conf_matrix = generate_confusion_matrix(test_labels, predicted_classes, class_names, output_dir)
-    roc_auc = generate_roc_curve(test_labels, predictions, output_dir)
-    print(f"roc auc: {roc_auc}")
+    test_roc_auc = generate_roc_curve(test_labels, predictions, output_dir)
+    print(f"roc auc: {test_roc_auc}")
 
     # Salva il grafico dell'accuracy
-    save_accuracy_plot(acc, val_acc, output_dir)
+    save_accuracy_plot(train_acc, val_acc, output_dir)
 
     # Dizionario di risultati finali
     results = {
-        "final_accuracy": acc[-1] if acc else None,
+        "final_accuracy": train_acc[-1] if train_acc else None,
         "final_val_accuracy": val_acc[-1] if val_acc else None,
-        "test_f1_score": f1,
+        "final_f1_score": train_f1[-1] if train_f1 else None,
+        "final_val_f1_score": val_f1[-1] if val_f1 else None,
+        "final_precision": train_precision[-1] if train_precision else None,
+        "final_val_precision": val_precision[-1] if val_precision else None,
+        "final_recall": train_recall[-1] if train_recall else None,
+        "final_val_recall": val_recall[-1] if val_recall else None,
         "test_accuracy": test_acc,
+        "test_f1_score": test_f1,
+        "test_precision": test_precision,
+        "test_recall": test_recall,
         "confusion_matrix": conf_matrix.tolist(),
-        "roc_auc": roc_auc
+        "roc_auc": test_roc_auc
     }
     convert_dict_to_json(results) # This saves also the file
     app_logger.info(f"Risultati finali salvati correttamente in {output_dir}")
@@ -138,7 +154,26 @@ def calculate_accuracy_score(true_classes, predicted_classes):
     return accuracy
 
 
+def calculate_precision_score(true_labels, predicted_labels):
+    """
+    Calcola la precision dei risultati del modello.
 
+    :param true_labels: Array delle etichette reali.
+    :param predicted_labels: Array delle etichette previste dal modello.
+    :return: Precision score come valore float.
+    """
+    return precision_score(true_labels, predicted_labels, average='weighted')
+
+
+def calculate_recall_score(true_labels, predicted_labels):
+    """
+    Calcola il recall dei risultati del modello.
+
+    :param true_labels: Array delle etichette reali.
+    :param predicted_labels: Array delle etichette previste dal modello.
+    :return: Recall score come valore float.
+    """
+    return recall_score(true_labels, predicted_labels, average='weighted')
 
 def generate_confusion_matrix(true_classes, predicted_classes, class_names, output_dir):
     """
@@ -163,9 +198,6 @@ def generate_confusion_matrix(true_classes, predicted_classes, class_names, outp
     plt.close()
 
     return conf_matrix
-
-
-from sklearn.metrics import roc_curve, auc
 
 
 def generate_roc_curve(test_labels, predictions, output_dir):

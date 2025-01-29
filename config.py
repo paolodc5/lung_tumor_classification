@@ -61,7 +61,7 @@ CONFIG = {
         }
     },
     "model": {
-        "input_shape": (256, 256, 1),
+        "input_shape": (256, 256, 3),
         "output_shape": 1,
         "backbone": "convnext_small",
         "preprocess_input": False

@@ -7,6 +7,7 @@ from evaluation_utils import evaluate_results
 from training import get_callbacks
 from global_utils import global_library_setup, convert_dict_to_json
 import tensorflow.keras as tfk
+from model import loss_fns, lr, metrics_train
 
 if __name__ == '__main__':
 
@@ -43,23 +44,22 @@ if __name__ == '__main__':
     app_logger.info("Training completato.")
 
     # Fine tuning
-    # back_layers = model.get_layer(CONFIG["model"]["backbone"])
-    # for layer in back_layers.layers:
-    #     layer.trainable = True
-    #
-    # model.compile(loss=tfk.losses.BinaryCrossentropy(),
-    #               optimizer=tfk.optimizers.AdamW(CONFIG['training']['learning_rate']),
-    #               metrics=['accuracy', tfk.metrics.AUC(name="auc"), tfk.metrics.Precision(), tfk.metrics.Recall()])
-    #
-    # history = model.fit(
-    #     iter(train_loader),
-    #     validation_data=iter(val_loader),
-    #     epochs=CONFIG['training']['epochs'],
-    #     steps_per_epoch=len(train_loader),
-    #     validation_steps=len(val_loader),
-    #     callbacks=callb,
-    #     verbose=1,
-    # )
+    # unfreezing layers
+    back_layers = model.get_layer(CONFIG["model"]["backbone"])
+    for layer in back_layers.layers:
+        layer.trainable = True
+
+    model.compile(loss=loss_fns, optimizer=tfk.optimizers.AdamW(lr), metrics=metrics_train)
+
+    history = model.fit(
+        iter(train_loader),
+        validation_data=iter(val_loader),
+        epochs=CONFIG['training']['epochs'],
+        steps_per_epoch=len(train_loader),
+        validation_steps=len(val_loader),
+        callbacks=callb,
+        verbose=1,
+    )
 
 
     # Salvataggio del modello finale

@@ -4,6 +4,7 @@ models/
 results/
 Old_files/
 split/
+Experiments/
 # Ignora i file di configurazione locali (modificati per percorsi specifici)
 # config.py
 info.txt

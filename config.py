@@ -19,18 +19,18 @@ LOCAL_TRAIN_PATH = "Data/Train"
 KAGGLE_DATA_PATH = "/kaggle/input/lung-tumor-full-nod/dataset_lung.xlsx"
 KAGGLE_TRAIN_PATH = "/kaggle/input/lung-tumor-full-nod/Data/Train"
 
-
 CONFIG = {
     "training": {
         "epochs": 50,
         "batch_size": 32,
         "learning_rate": 0.001,
         "optimizer": "adamW",
-        "loss_function": "binary_crossentropy"
+        "loss_function": "binary_crossentropy",
+        "augmentation": True
     },
     "data": {
-        "dataset_path": KAGGLE_DATA_PATH,
-        "train_path": KAGGLE_TRAIN_PATH,
+        "dataset_path": LOCAL_DATA_PATH,
+        "train_path": LOCAL_TRAIN_PATH,
         "train_split": 0.8,
         "validation_split": 0.1,
         "test_split": 0.1,
@@ -48,8 +48,8 @@ CONFIG = {
         "pipeline":{
             "cropping": True,
             "median_filtering": True,
-            "clahe": True,
             "he": False,
+            "clahe": True,
             "opening": False,
             "closing": False,
             "convert_to_rgb": True
@@ -57,7 +57,7 @@ CONFIG = {
     },
     "model": {
         "input_shape": (224, 224, 1),
-        "num_classes": 2,
+        "output_shape": 1,
         "backbone": "convnext_small",
         "preprocess_input": False
     },
@@ -74,6 +74,7 @@ CONFIG = {
     },
     "info":"only_median_filtering_and_cropping"
 }
+
 
 
 

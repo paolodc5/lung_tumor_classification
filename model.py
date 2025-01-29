@@ -23,65 +23,34 @@ lr = CONFIG['training']['learning_rate']
 preprocess_function = backbone_dict[CONFIG['model']['backbone']][1]
 metrics_train = ['accuracy', tfk.metrics.AUC(name="auc"), tfk.metrics.Precision(), tfk.metrics.Recall()]
 
-if CONFIG['training']['loss_function'] in loss_dict.keys():
-    loss_fns = loss_dict[CONFIG['training']['loss_function']]
-else:
-    raise ValueError("Loss function not found in the loss dictionary.")
-
-
-
-
-def get_augmentation_pipeline():
-    return tfk.Sequential([
-        tfkl.RandomFlip("horizontal_and_vertical", name="random_flip"),  # Flip images both horizontally and vertically
-        tfkl.RandomRotation(0.2, name="random_rotation"),  # Randomly rotate images (20% of 360 degrees)
-    ], name="augmentation_pipeline")
-
-
-
+if CONFIG['training']['loss_function'] in loss_dict.keys(): loss_fns = loss_dict[CONFIG['training']['loss_function']]
+else: raise ValueError("Loss function not found in the loss dictionary.")
 
 
 def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
-                augmentation=get_augmentation_pipeline(),
                 input_shape=CONFIG['model']['input_shape'],
-                output_shape=1,
+                output_shape=CONFIG['model']['output_shape'],
                 pooling='avg',
                 output_activation='sigmoid',
                 loss_fn = loss_fns,
                 optimizer=tfk.optimizers.AdamW(lr),
                 metrics=metrics_train,
                 preprocess_input=CONFIG['model']['preprocess_input'],
-                seed=CONFIG['general']['seed'],
                 plot=True):
-
 
     # Input layer
     inputs = tfk.Input(shape=input_shape, name='input_layer')
 
-    if preprocess_input:
-        input_prep = preprocess_function(inputs)
-    else:
-        input_prep = inputs
-
-
-    # Augmentation directly integrated as layers
-    # augmented = tfkl.RandomFlip("horizontal_and_vertical", name="random_flip",seed=seed)(input_prep)  # Random flips
-    # augmented = tfkl.RandomRotation(0.3, name="random_rotation",seed=seed)(augmented)  # Random rotations
-    # augmented = tfkl.RandomShear(x_factor=0.3,y_factor=0.3,seed=seed)(augmented) # Random Shear
-    # augmented = tfkl.RandomSharpness(0.3, value_range=(0, 255), name="random_sharpness",seed=seed)(augmented)
-    augmented = inputs
+    if preprocess_input: input_prep = preprocess_function(inputs)
+    else: input_prep = inputs
 
     # Defining the backbone and calling it
-    backbone = backbone(weights="imagenet",
-                        include_top=False,
-                        input_shape=(input_shape[0],input_shape[1],3),
-                        pooling=pooling)
+    backbone = backbone(weights="imagenet",include_top=False,input_shape=(input_shape[0],input_shape[1],3),pooling=pooling)
     backbone.trainable = False
     for layer in backbone.layers[-30:]:
         layer.trainable = True
 
-
-    x = backbone(augmented)
+    x = backbone(input_prep)
 
     x = tfkl.Dropout(0.3, name='dropout')(x)
     x = tfkl.BatchNormalization(name='batch_norm')(x)
@@ -96,7 +65,6 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
     tl_model = tfk.Model(inputs=inputs, outputs=outputs, name='model')
     tl_model.compile(loss=loss_fn, optimizer=optimizer, metrics=metrics)
     app_logger.info("Model correctly compiled")
-
     if plot:
       tl_model.summary(expand_nested=True, show_trainable=True)
 

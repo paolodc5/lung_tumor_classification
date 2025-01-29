@@ -7,6 +7,9 @@ from data_processor import DataProcessor, resize_image
 from sklearn.model_selection import train_test_split
 from config import CONFIG
 from sklearn.utils import resample
+import tensorflow as tf
+
+from training import get_augmentation
 
 
 class DataLoader:
@@ -26,7 +29,8 @@ class DataLoader:
         self.random_state = CONFIG['general']['seed']
         self.norm_type = CONFIG['preprocessing']['normalization_type']
         self.test = 0
-
+        self.val = 0
+        self.do_augmentation = CONFIG['training']['augmentation']
         # Salvataggio/caricamento degli split
         self.split_files = {
             'train': 'split/train_split.csv',
@@ -50,6 +54,7 @@ class DataLoader:
             self.dataset = self.train_df.copy()
         elif split == 'val':
             self.dataset = self.val_df.copy()
+            self.val = 1
         elif split == 'test':
             self.dataset = self.test_df.copy()
             self.test = 1 # flag
@@ -117,6 +122,9 @@ class DataLoader:
             processor = self.preprocess_fn(images)
             processor.apply_pipeline()
             images = processor.data
+
+        if not (self.test or self.val) and self.do_augmentation:
+            images = get_augmentation(images)
 
         # This is for binary tasks
         labels = np.where(labels < 4, 0, 1).astype(np.float64)

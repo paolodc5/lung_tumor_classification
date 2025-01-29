@@ -29,8 +29,8 @@ CONFIG = {
         "loss_function": "binary_crossentropy"
     },
     "data": {
-        "dataset_path": LOCAL_DATA_PATH,
-        "train_path": LOCAL_TRAIN_PATH,
+        "dataset_path": KAGGLE_DATA_PATH,
+        "train_path": KAGGLE_TRAIN_PATH,
         "train_split": 0.8,
         "validation_split": 0.1,
         "test_split": 0.1,
@@ -41,7 +41,7 @@ CONFIG = {
         "resize": (224, 224),
         "normalization_type": "None",
         "clipping_range": (-1000, 3000),
-        "median_filter_size": 7,
+        "median_filter_size": 5,
         "clahe_clip_limit": 5.0,
         "clahe_tile_grid_size": (8, 8),
     },

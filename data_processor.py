@@ -188,7 +188,7 @@ class DataProcessor:
         self.clip_values()
         self.pre_normalize()
         self.data = self.median_filtering(self.data)
-        #self.data = self.he(self.data)
+        self.data = self.he(self.data)
         self.data = self.clahe(self.data)
         self.normalize()
         self.data = self.convert_to_rgb(self.data)

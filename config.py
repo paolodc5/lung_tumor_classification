@@ -36,9 +36,9 @@ CONFIG = {
     "data": {
         "dataset_path": KAGGLE_DATA_PATH,
         "train_path": KAGGLE_TRAIN_PATH,
-        "train_split": 0.8,
+        "train_split": 0.7,
         "validation_split": 0.1,
-        "test_split": 0.1,
+        "test_split": 0.2,
         "shuffle": True,
         "class_weights": [0.6,2],
     },
@@ -75,7 +75,7 @@ CONFIG = {
         "save_path": "results",
     },
     "general":{
-        "seed": 42
+        "seed": 64
     },
 }
 

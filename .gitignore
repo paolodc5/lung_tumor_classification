@@ -7,6 +7,7 @@ split/
 # Ignora i file di configurazione locali (modificati per percorsi specifici)
 # config.py
 info.txt
+training.txt
 # Ignora i file temporanei di Python
 *.pyc
 *.pyo

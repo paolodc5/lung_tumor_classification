@@ -23,8 +23,7 @@ lr = CONFIG['training']['learning_rate']
 preprocess_function = backbone_dict[CONFIG['model']['backbone']][1]
 metrics_train = ['accuracy', tfk.metrics.AUC(name="auc"),
                  tfk.metrics.Precision(),
-                 tfk.metrics.Recall(),
-                 tfk.metrics.F1Score(average='weighted', name='f1_score')]
+                 tfk.metrics.Recall()]
 
 if CONFIG['training']['loss_function'] in loss_dict.keys(): loss_fns = loss_dict[CONFIG['training']['loss_function']]
 else: raise ValueError("Loss function not found in the loss dictionary.")

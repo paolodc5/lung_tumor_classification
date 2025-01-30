@@ -28,9 +28,10 @@ def get_augmentation(images, seed=CONFIG['general']['seed']):
         tf.keras.layers.RandomRotation(0.2, fill_mode='constant', fill_value=0, seed=seed),
         RandomContrast(lower=0.8, upper=1.2, seed=seed),
         RandomShear(shear_range=0.2, seed=seed),
-        RandomBrightness(max_delta=0.3, seed=seed)
+
     ])
 
+    # RandomBrightness(max_delta=0.3, seed=seed)
 
     images = augmentation_layer(images, training=True)
     images = tf.cast(images, tf.uint8)

@@ -35,7 +35,7 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
                 pooling='avg',
                 output_activation='sigmoid',
                 loss_fn = loss_fns,
-                optimizer=tfk.optimizers.AdamW(lr),
+                optimizer=tfk.optimizers.AdamW(learning_rate=lr),
                 metrics=metrics_train,
                 preprocess_input=CONFIG['model']['preprocess_input'],
                 plot=True):

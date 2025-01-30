@@ -23,9 +23,9 @@ def get_callbacks(config_dict=CONFIG['training']['callbacks']):
     )
 
     rlrop = ReduceLROnPlateau(monitor='val_loss',
+                              mode='min',
                               factor=0.1,
-                              patience=20,
-                              min_lr=1e-6)
+                              patience=20)
 
 
     return [early_stopping, rlrop]

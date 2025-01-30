@@ -12,8 +12,9 @@ def get_callbacks(config_dict=CONFIG['training']['callbacks']):
     :param val_generator: DataLoader per la validazione.
     """
     patience = config_dict['early_stopping']['patience']
+    monitor_value = config_dict['early_stopping']['monitor']
     early_stopping = EarlyStopping(
-        monitor='val_loss',
+        monitor=monitor_value,
         patience=patience,
         restore_best_weights=True,
         verbose=1

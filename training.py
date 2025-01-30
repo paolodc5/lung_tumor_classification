@@ -28,15 +28,16 @@ def get_callbacks(config_dict=CONFIG['training']['callbacks']):
                               min_lr=1e-6)
 
 
-    return [early_stopping]
+    return [early_stopping, rlrop]
 
 
 def get_augmentation(images, seed=CONFIG['general']['seed']):
     augmentation_layer = tf.keras.Sequential([
         tf.keras.layers.RandomFlip("horizontal_and_vertical", seed=seed),
         tf.keras.layers.RandomRotation(0.2, fill_mode='constant', fill_value=0, seed=seed),
-        RandomContrast(lower=0.8, upper=1.2, seed=seed),
-        RandomShear(shear_range=0.2, seed=seed),
+        RandomContrast(lower=0.7, upper=1.3, seed=seed),
+        RandomShear(shear_range=0.3, seed=seed),
+        RandomCutout(mask_height=20, mask_width=20, seed=seed)
     ])
 
     # RandomBrightness(max_delta=0.3, seed=seed)
@@ -220,6 +221,71 @@ class RandomContrast(tf.keras.layers.Layer):
 
 
 
+
+class RandomCutout(tf.keras.layers.Layer):
+    def __init__(self, mask_height, mask_width, num_masks=1, seed=None, **kwargs):
+        """
+        Layer per applicare Random Cutout.
+
+        Args:
+            mask_height (int): Altezza del rettangolo di mascheramento.
+            mask_width (int): Larghezza del rettangolo di mascheramento.
+            num_masks (int): Numero di maschere da applicare per immagine.
+            seed (int, opzionale): Seed per generare numeri casuali.
+        """
+        super(RandomCutout, self).__init__(**kwargs)
+        self.mask_height = mask_height
+        self.mask_width = mask_width
+        self.num_masks = num_masks
+        self.seed = seed
+
+    def call(self, inputs, training=True):
+        """
+        Applica casualmente cutout alle immagini in un batch.
+
+        Args:
+            inputs: Batch di immagini (tensore con range [0, 255] e dtype uint8 o float32).
+            training: Flag per indicare se siamo in fase di training.
+
+        Returns:
+            Tensore con i cutout applicati.
+        """
+        if not training:
+            return inputs  # Nessuna modifica in inferenza
+
+        inputs_shape = tf.shape(inputs)
+        batch_size = inputs_shape[0]
+        img_height = inputs_shape[1]
+        img_width = inputs_shape[2]
+        channels = inputs_shape[3]
+
+        # Funzione per applicare cutout a un'immagine singola
+        def apply_cutout(image):
+            for _ in range(self.num_masks):
+                # Posizione casuale del centro del rettangolo
+                center_y = tf.random.uniform([], 0, img_height, dtype=tf.int32, seed=self.seed)
+                center_x = tf.random.uniform([], 0, img_width, dtype=tf.int32, seed=self.seed)
+
+                # Calcolo dei limiti del rettangolo
+                y1 = tf.clip_by_value(center_y - self.mask_height // 2, 0, img_height)
+                y2 = tf.clip_by_value(center_y + self.mask_height // 2, 0, img_height)
+                x1 = tf.clip_by_value(center_x - self.mask_width // 2, 0, img_width)
+                x2 = tf.clip_by_value(center_x + self.mask_width // 2, 0, img_width)
+
+                # Applica la maschera mettendo tutti i valori a zero nell'area selezionata
+                image = tf.tensor_scatter_nd_update(
+                    image,
+                    tf.reshape(tf.stack(tf.meshgrid(tf.range(y1, y2), tf.range(x1, x2), indexing="ij"), axis=-1),
+                               [-1, 2]),
+                    tf.zeros([(y2 - y1) * (x2 - x1), channels], dtype=image.dtype)
+                )
+
+            return image
+
+        # Applicazione della funzione `apply_cutout` su tutto il batch
+        outputs = tf.map_fn(apply_cutout, inputs)
+
+        return outputs
 
 
 if __name__ == "__main__":

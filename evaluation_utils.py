@@ -218,7 +218,7 @@ def generate_roc_curve(test_labels, predictions, output_path):
     plt.legend(fontsize=12, loc="lower right")
     plt.grid(True, linestyle="--", linewidth=0.5, alpha=0.7)
 
-    plt.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_path, "roc_curve.png"), dpi=300, bbox_inches="tight")
     plt.close()
 
     return roc_auc
@@ -243,7 +243,7 @@ def save_accuracy_plot(accuracy, val_accuracy, output_dir):
     plt.plot(epochs, val_accuracy, marker='s', linestyle='--', linewidth=2, markersize=6, label="Validation Accuracy",
              color="#ff7f0e")
 
-    plt.xticks(epochs)  # Mostra solo numeri interi sulle epoche
+    plt.xticks(np.arange(1, len(accuracy) + 1, step=5))  # Mostra solo numeri interi sulle epoche
     plt.xlabel("Epochs", fontsize=14, fontweight='bold')
     plt.ylabel("Accuracy", fontsize=14, fontweight='bold')
     plt.title("Training & Validation Accuracy", fontsize=16, fontweight='bold', pad=15)

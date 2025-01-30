@@ -30,7 +30,7 @@ CONFIG = {
         "callbacks":{
             "early_stopping": {
                 "patience": 20,
-                "monitor": "val_auc",
+                "monitor": "val_recall",
                 "mode": "max"
             },
             "reduce_lr": {

@@ -25,9 +25,9 @@ if __name__ == '__main__':
 
     # Creazione del modello
     if CONFIG['model']['type'] == 'custom_model':
-        model = build_model()
-    else:
         model = build_enhanced_model()
+    else:
+        model = build_model()
 
     # creazione directory di salvataggio se non esistono
     os.makedirs(CONFIG['output']['save_model_path'], exist_ok=True)

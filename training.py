@@ -36,8 +36,8 @@ def get_augmentation(images, seed=CONFIG['general']['seed']):
         tf.keras.layers.RandomFlip("horizontal_and_vertical", seed=seed),
         tf.keras.layers.RandomRotation(0.2, fill_mode='constant', fill_value=0, seed=seed),
         RandomContrast(lower=0.7, upper=1.3, seed=seed),
-        RandomShear(shear_range=0.3, seed=seed),
-        RandomCutout(mask_height=20, mask_width=20, seed=seed)
+        RandomShear(shear_range=0.2, seed=seed),
+        RandomCutout(mask_height=30, mask_width=30, seed=seed)
     ])
 
     # RandomBrightness(max_delta=0.3, seed=seed)

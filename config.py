@@ -30,8 +30,8 @@ CONFIG = {
         "callbacks":{
             "early_stopping": {
                 "patience": 20,
-                "monitor": "val_loss",
-                "mode": "min"
+                "monitor": "val_recall",
+                "mode": "max",
             },
             "reduce_lr": {
                 "patience": 20,
@@ -54,14 +54,14 @@ CONFIG = {
         "resize": (224, 224),
         "normalization_type": "None",
         "clipping_range": (-1000, 3000),
-        "median_filter_size": 3,
-        "clahe_clip_limit": 7.0,
+        "median_filter_size": 5,
+        "clahe_clip_limit": 9.0,
         "clahe_tile_grid_size": (20, 20),
         "morph_kernel_size": 2,
         "pipeline":{
             "cropping": True,
             "median_filtering": True,
-            "he": True,
+            "he": False,
             "clahe": True,
             "opening": False,
             "closing": False,
@@ -83,7 +83,7 @@ CONFIG = {
         "save_path": "results",
     },
     "general":{
-        "seed": 42
+        "seed": 177
     },
 }
 

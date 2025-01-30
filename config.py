@@ -61,7 +61,7 @@ CONFIG = {
         "pipeline":{
             "cropping": True,
             "median_filtering": True,
-            "he": False,
+            "he": True,
             "clahe": True,
             "opening": False,
             "closing": False,

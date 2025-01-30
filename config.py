@@ -73,6 +73,7 @@ CONFIG = {
         "output_shape": 1,
         "backbone": "convnext_small",
         "preprocess_input": False
+        "type": "custom_model"
     },
     "logging": {
         "log_file": "training.txt",

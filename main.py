@@ -1,8 +1,11 @@
 import os
+
+from pygments.lexers import configs
+
 from logging_utils import app_logger, configure_keras_logging
 from config import CONFIG
 from data_loader_class import DataLoader
-from model import build_model
+from model import build_model, build_enhanced_model
 from evaluation_utils import evaluate_results
 from training import get_callbacks
 from global_utils import global_library_setup, convert_dict_to_json
@@ -21,7 +24,10 @@ if __name__ == '__main__':
     val_loader = DataLoader(split='val')
 
     # Creazione del modello
-    model = build_model()
+    if configs['model']['type'] == 'custom':
+        model = build_model()
+    else:
+        model = build_enhanced_model()
 
     # creazione directory di salvataggio se non esistono
     os.makedirs(CONFIG['output']['save_model_path'], exist_ok=True)

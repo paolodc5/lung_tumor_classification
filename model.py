@@ -2,6 +2,7 @@ from tensorflow import keras as tfk
 import tensorflow.keras.layers as tfkl
 from config import CONFIG
 from logging_utils import app_logger
+import tensorflow.keras.models as tfkm
 
 
 backbone_dict = {
@@ -33,7 +34,7 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
                 input_shape=CONFIG['model']['input_shape'],
                 output_shape=CONFIG['model']['output_shape'],
                 pooling='avg',
-                output_activation='sigmoid',
+                output_activation='sigmoid' if CONFIG['model']['output_shape'] == 1 else 'softmax',
                 loss_fn = loss_fns,
                 optimizer=tfk.optimizers.AdamW(learning_rate=lr),
                 metrics=metrics_train,
@@ -57,11 +58,11 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
 
     x = backbone(input_prep)
 
-    x = tfkl.Dropout(0.4, name='dropout')(x)
+    x = tfkl.Dropout(0.2, name='dropout')(x)
     x = tfkl.BatchNormalization(name='batch_norm')(x)
 
     x = tfkl.Dense(256, activation='relu', name='dense_1')(x)
-    x = tfkl.Dropout(0.4, name='dropout_2')(x)
+    x = tfkl.Dropout(0.2, name='dropout_2')(x)
     x = tfkl.BatchNormalization(name='batch_norm_2')(x)
 
     outputs = tfkl.Dense(output_shape, activation=output_activation, name='output')(x)
@@ -80,74 +81,107 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
 
 
 
+import tensorflow as tf
+import tensorflow.keras.layers as tfkl
+from tensorflow.keras import Model
 
+import tensorflow as tf
+import tensorflow.keras.layers as tfkl
+from tensorflow.keras import Model
 
+class EnhancedCNN(Model):
+    def __init__(self, input_shape, output_shape):
+        super(EnhancedCNN, self).__init__()
 
+        # 📌 **Feature Extraction (Convolutional Layers)**
+        self.conv1 = tfkl.Conv2D(32, (3, 3), activation='relu', padding='same')
+        self.conv2 = tfkl.Conv2D(32, (3, 3), activation='relu', padding='same')
+        self.pool1 = tfkl.MaxPooling2D((2, 2))
 
+        self.conv3 = tfkl.Conv2D(64, (3, 3), activation='relu', padding='same')
+        self.conv4 = tfkl.Conv2D(64, (3, 3), activation='relu', padding='same')
+        self.pool2 = tfkl.MaxPooling2D((2, 2))
 
-class CustomModel(tfk.Model):
-    def __init__(self, backbone, input_shape, output_shape, preprocess_function, pooling='avg',
-                 output_activation='sigmoid', seed=42):
-        super(CustomModel, self).__init__()
+        self.conv5 = tfkl.Conv2D(128, (3, 3), activation='relu', padding='same')
+        self.conv6 = tfkl.Conv2D(128, (3, 3), activation='relu', padding='same')
+        self.pool3 = tfkl.MaxPooling2D((2, 2))
 
-        # Salviamo i parametri principali
-        self.preprocess_function = preprocess_function
-        self.seed = seed
+        self.conv7 = tfkl.Conv2D(256, (3, 3), activation='relu', padding='same')
+        self.conv8 = tfkl.Conv2D(256, (3, 3), activation='relu', padding='same')
+        self.pool4 = tfkl.MaxPooling2D((2, 2))
 
-        # Data augmentation layers
-        self.augmentation = tfk.Sequential([
-            tfkl.RandomFlip("horizontal_and_vertical", name="random_flip", seed=seed),
-            tfkl.RandomRotation(0.3, name="random_rotation", seed=seed),
-            tfkl.RandomSharpness(0.3, value_range=(0, 255), name="random_sharpness", seed=seed)
-        ], name="augmentation_pipeline")
-
-        # Backbone (base model)
-        self.backbone = backbone(weights="imagenet",
-                                 include_top=False,
-                                 input_shape=(input_shape[0], input_shape[1], 3),
-                                 pooling=pooling)
-        self.backbone.trainable = False
-        for layer in self.backbone.layers[-30:]:
-            layer.trainable = True
-
-        # Additional layers after the backbone
-        self.dropout1 = tfkl.Dropout(0.3, name='dropout_1')
-        self.batch_norm1 = tfkl.BatchNormalization(name='batch_norm_1')
-        self.dense1 = tfkl.Dense(256, activation='relu', name='dense_1')
-
-        self.dropout2 = tfkl.Dropout(0.3, name='dropout_2')
-        self.batch_norm2 = tfkl.BatchNormalization(name='batch_norm_2')
-        self.output_layer = tfkl.Dense(output_shape, activation=output_activation, name='output')
+        # 📌 **Flatten & Fully Connected Layers**
+        self.flatten = tfkl.Flatten()
+        self.dense1 = tfkl.Dense(512, activation='relu')
+        self.dropout1 = tfkl.Dropout(0.5)
+        self.dense2 = tfkl.Dense(256, activation='relu')
+        self.dropout2 = tfkl.Dropout(0.5)
+        self.output_layer = tfkl.Dense(output_shape, activation='sigmoid' if output_shape == 1 else 'softmax')
 
     def call(self, inputs, training=False):
-        # Preprocessing step
-        if self.preprocess_function:
-            x = self.preprocess_function(inputs)
-        else:
-            x = inputs
+        """ Definisce il forward pass del modello. """
+        x = self.conv1(inputs)
+        x = self.conv2(x)
+        x = self.pool1(x)
 
-        # Augmentation (applied during training only)
-        if training:
-            x = self.augmentation(x)
+        x = self.conv3(x)
+        x = self.conv4(x)
+        x = self.pool2(x)
 
-        # Backbone processing
-        x = self.backbone(x, training=training)
+        x = self.conv5(x)
+        x = self.conv6(x)
+        x = self.pool3(x)
 
-        # Additional layers
-        x = self.dropout1(x, training=training)
-        x = self.batch_norm1(x, training=training)
+        x = self.conv7(x)
+        x = self.conv8(x)
+        x = self.pool4(x)
+
+        x = self.flatten(x)
         x = self.dense1(x)
-
+        x = self.dropout1(x, training=training)
+        x = self.dense2(x)
         x = self.dropout2(x, training=training)
-        x = self.batch_norm2(x, training=training)
-        outputs = self.output_layer(x)
+        return self.output_layer(x)
 
-        return outputs
+    def build(self, input_shape):
+        """ 📌 Costruisce il modello con un input shape corretto """
+        super(EnhancedCNN, self).build(input_shape)
 
 
 
 
+def build_enhanced_model(input_shape=CONFIG['model']['input_shape'],
+                output_shape=CONFIG['model']['output_shape'],
+                loss_fn=loss_fns,
+                optimizer=tfk.optimizers.AdamW(learning_rate=CONFIG['training']['learning_rate']),
+                metrics=metrics_train,
+                plot=True):
+    """
+    Costruisce e compila l'Enhanced CNN.
+
+    :param input_shape: Dimensione dell'input (es. (224, 224, 3)).
+    :param output_shape: Numero di classi in output.
+    :param loss_fn: Funzione di loss scelta.
+    :param optimizer: Ottimizzatore (default: AdamW).
+    :param metrics: Metriche da monitorare.
+    :param plot: Se True, stampa il summary del modello.
+    :return: Modello compilato pronto per il training.
+    """
+
+    model = EnhancedCNN(input_shape=input_shape, output_shape=output_shape)
+    dummy_input = tf.keras.Input(shape=input_shape)
+    _ = model(dummy_input)
+
+    # Compila il modello
+    model.compile(loss=loss_fn, optimizer=optimizer, metrics=metrics)
+    app_logger.info("Enhanced model correctly compiled")
+
+    if plot:
+        model.build((None, input_shape[0], input_shape[1], 3))
+        model.summary(expand_nested=True, show_trainable=True)
+
+    return model
 
 
 if __name__ == '__main__':
-    model = build_model()
+    model = build_enhanced_model()

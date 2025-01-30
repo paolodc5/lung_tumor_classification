@@ -31,7 +31,14 @@ CONFIG = {
             "early_stopping": {
                 "patience": 20,
                 "monitor": "val_auc",
+                "mode": "max"
             },
+            "reduce_lr": {
+                "patience": 20,
+                "monitor": "val_loss",
+                "factor": 0.1,
+                "min_lr": 1e-6,
+            }
         }
     },
     "data": {

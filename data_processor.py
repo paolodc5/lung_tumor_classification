@@ -285,12 +285,14 @@ class DataProcessor:
             # plt.figure(figsize=(8, 4))
             # plt.subplot(1, 2, 1)
             # plt.imshow(img, cmap="gray")
+            # plt.axis("off")
             # plt.title("Immagine Originale")
             # plt.subplot(1, 2, 2)
             # img_debug = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
             # cv2.rectangle(img_debug, (x, y), (x + w, y + h), (0, 255, 0), 2)
             # plt.imshow(img_debug, cmap="gray")
             # plt.title("Bounding Box Segmentation")
+            # plt.axis("off")
             # plt.show()
 
             # Salva immagine processata

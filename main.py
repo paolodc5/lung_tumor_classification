@@ -24,7 +24,7 @@ if __name__ == '__main__':
     val_loader = DataLoader(split='val')
 
     # Creazione del modello
-    if configs['model']['type'] == 'custom_model':
+    if CONFIG['model']['type'] == 'custom_model':
         model = build_model()
     else:
         model = build_enhanced_model()

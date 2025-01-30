@@ -26,12 +26,12 @@ CONFIG = {
         "learning_rate": 0.0001,
         "optimizer": "adamW",
         "loss_function": "binary_crossentropy",
-        "augmentation": True,
+        "augmentation": False,
         "callbacks":{
             "early_stopping": {
                 "patience": 20,
-                "monitor": "val_recall",
-                "mode": "max",
+                "monitor": "val_loss",
+                "mode": "min",
             },
             "reduce_lr": {
                 "patience": 20,
@@ -55,14 +55,14 @@ CONFIG = {
         "normalization_type": "None",
         "clipping_range": (-1000, 3000),
         "median_filter_size": 5,
-        "clahe_clip_limit": 9.0,
-        "clahe_tile_grid_size": (20, 20),
+        "clahe_clip_limit": 2.0,
+        "clahe_tile_grid_size": (8, 8),
         "morph_kernel_size": 2,
         "pipeline":{
-            "cropping": True,
-            "median_filtering": True,
+            "cropping": False,
+            "median_filtering": False,
             "he": False,
-            "clahe": True,
+            "clahe": False,
             "opening": False,
             "closing": False,
             "convert_to_rgb": True

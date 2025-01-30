@@ -200,26 +200,25 @@ def generate_confusion_matrix(true_classes, predicted_classes, class_names, outp
     return conf_matrix
 
 
-def generate_roc_curve(test_labels, predictions, output_dir):
-    """
-    Genera e salva la curva ROC.
+def generate_roc_curve(test_labels, predictions, output_path):
+    sns.set_style("whitegrid")
+    sns.set_context("talk")
 
-    :param test_labels: Label vere con one-hot encoding.
-    :param predictions: Predizioni del modello (probabilità).
-    :param output_dir: Directory di output.
-    :return: AUC della curva ROC.
-    """
     fpr, tpr, _ = roc_curve(test_labels.ravel(), predictions.ravel())
     roc_auc = auc(fpr, tpr)
 
-    plt.figure()
-    plt.plot(fpr, tpr, color='blue', lw=2, label=f"AUC = {roc_auc:.2f}")
-    plt.plot([0, 1], [0, 1], color='grey', lw=1, linestyle='--')
-    plt.xlabel("False Positive Rate")
-    plt.ylabel("True Positive Rate")
-    plt.title("ROC Curve")
-    plt.legend()
-    plt.savefig(os.path.join(output_dir, "roc_curve.png"))
+    plt.figure(figsize=(8, 5))
+    plt.plot(fpr, tpr, linestyle='-', linewidth=2.5, label=f"AUC = {roc_auc:.2f}", color="#1f77b4")
+    plt.plot([0, 1], [0, 1], linestyle='--', linewidth=1.5, color="grey")
+
+    plt.xlabel("False Positive Rate", fontsize=14, fontweight='bold')
+    plt.ylabel("True Positive Rate", fontsize=14, fontweight='bold')
+    plt.title("Receiver Operating Characteristic (ROC) Curve", fontsize=16, fontweight='bold', pad=15)
+
+    plt.legend(fontsize=12, loc="lower right")
+    plt.grid(True, linestyle="--", linewidth=0.5, alpha=0.7)
+
+    plt.savefig(output_path, dpi=300, bbox_inches="tight")
     plt.close()
 
     return roc_auc
@@ -227,22 +226,32 @@ def generate_roc_curve(test_labels, predictions, output_dir):
 
 def save_accuracy_plot(accuracy, val_accuracy, output_dir):
     """
-    Genera e salva il grafico di accuracy e validation accuracy.
+    Genera e salva un grafico di training e validation accuracy con uno stile migliorato.
 
     :param accuracy: Lista delle accuracy durante il training.
     :param val_accuracy: Lista delle validation accuracy.
     :param output_dir: Directory di output.
     """
-    epochs = range(1, len(accuracy) + 1)
+    sns.set_style("whitegrid")  # Stile pulito
+    sns.set_context("talk")  # Testo ben leggibile
 
-    plt.figure()
-    plt.plot(epochs, accuracy, 'b', label="Training Accuracy")
-    plt.plot(epochs, val_accuracy, 'r', label="Validation Accuracy")
-    plt.title("Accuracy vs. Epochs")
-    plt.xlabel("Epochs")
-    plt.ylabel("Accuracy")
-    plt.legend()
-    plt.savefig(os.path.join(output_dir, "accuracy_plot.png"))
+    epochs = np.arange(1, len(accuracy) + 1)
+
+    plt.figure(figsize=(8, 5))  # Dimensioni ottimali
+    plt.plot(epochs, accuracy, marker='o', linestyle='-', linewidth=2, markersize=6, label="Training Accuracy",
+             color="#1f77b4")
+    plt.plot(epochs, val_accuracy, marker='s', linestyle='--', linewidth=2, markersize=6, label="Validation Accuracy",
+             color="#ff7f0e")
+
+    plt.xticks(epochs)  # Mostra solo numeri interi sulle epoche
+    plt.xlabel("Epochs", fontsize=14, fontweight='bold')
+    plt.ylabel("Accuracy", fontsize=14, fontweight='bold')
+    plt.title("Training & Validation Accuracy", fontsize=16, fontweight='bold', pad=15)
+
+    plt.legend(fontsize=12)
+    plt.grid(True, linestyle="--", linewidth=0.5, alpha=0.7)  # Griglia sottile
+
+    plt.savefig(os.path.join(output_dir, "accuracy_plot.png"), dpi=300, bbox_inches="tight")
     plt.close()
 
 

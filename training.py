@@ -28,7 +28,7 @@ def get_callbacks(config_dict=CONFIG['training']['callbacks']):
                               patience=20)
 
 
-    return [early_stopping, rlrop]
+    return [early_stopping]
 
 
 def get_augmentation(images, seed=CONFIG['general']['seed']):

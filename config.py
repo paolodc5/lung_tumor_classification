@@ -23,7 +23,7 @@ CONFIG = {
     "training": {
         "epochs": 150,
         "batch_size": 32,
-        "learning_rate": 0.0001,
+        "learning_rate": 0.00001,
         "optimizer": "adamW",
         "loss_function": "binary_crossentropy",
         "augmentation": False,

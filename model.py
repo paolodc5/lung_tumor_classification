@@ -9,7 +9,10 @@ backbone_dict = {
     "efficientnetB2": [tfk.applications.EfficientNetB2, tfk.applications.efficientnet.preprocess_input],
     "resnet50": [tfk.applications.ResNet50, tfk.applications.resnet.preprocess_input],
     "Resnet101V2": [tfk.applications.ResNet101V2, tfk.applications.resnet_v2.preprocess_input],
-    "convnext_small": [tfk.applications.ConvNeXtSmall, tfk.applications.convnext.preprocess_input]
+    "convnext_small": [tfk.applications.ConvNeXtSmall, tfk.applications.convnext.preprocess_input],
+    "resnet50v2": [tfk.applications.ResNet50V2, tfk.applications.resnet_v2.preprocess_input],
+    "resnet101": [tfk.applications.ResNet101, tfk.applications.resnet.preprocess_input],
+
 }
 
 loss_dict = {
@@ -77,7 +80,7 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
     return tl_model
 
 
-def build_model_2(backbone=backbone_dict['resnet50'][0],
+def build_model_2(backbone=backbone_dict['convnext_small'][0],
                 input_shape=CONFIG['model']['input_shape'],
                 output_shape=CONFIG['model']['output_shape'],
                 pooling=None,
@@ -135,7 +138,7 @@ def residual_block(x, filters, kernel_size=3, stride=1):
 
 # Pyramid Pooling Module (PPM)
 
-def pyramid_pooling_module(x, pool_sizes=[1, 7]):
+def pyramid_pooling_module(x, pool_sizes=[1,4,7]):
     shape = tf.keras.backend.int_shape(x)  # Ottieni la forma di input
     height, width = shape[1], shape[2]  # Altezza e larghezza dello spazio
 

@@ -1,9 +1,9 @@
+import tensorflow as tf
 from tensorflow import keras as tfk
 import tensorflow.keras.layers as tfkl
 from config import CONFIG
 from logging_utils import app_logger
-import tensorflow.keras.models as tfkm
-
+from tensorflow.keras import layers, models
 
 backbone_dict = {
     "efficientnetB2": [tfk.applications.EfficientNetB2, tfk.applications.efficientnet.preprocess_input],
@@ -80,108 +80,81 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
 
 
 
+# Residual Block
+def residual_block(x, filters, kernel_size=3, stride=1):
+    shortcut = layers.Conv2D(filters, 1, strides=stride, padding='same')(x) if stride > 1 or x.shape[-1] != filters else x
+    x = layers.Conv2D(filters, kernel_size, strides=stride, padding='same', activation='relu')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Conv2D(filters, kernel_size, strides=1, padding='same')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Add()([x, shortcut])
+    x = layers.ReLU()(x)
+    return x
 
-import tensorflow as tf
-import tensorflow.keras.layers as tfkl
-from tensorflow.keras import Model
+# Pyramid Pooling Module (PPM)
 
-import tensorflow as tf
-import tensorflow.keras.layers as tfkl
-from tensorflow.keras import Model
+def pyramid_pooling_module(x, pool_sizes=[1, 2, 4, 8]):
+    shape = tf.keras.backend.int_shape(x)  # Ottieni la forma di input
+    height, width = shape[1], shape[2]  # Altezza e larghezza dello spazio
 
-class EnhancedCNN(Model):
-    def __init__(self, input_shape, output_shape):
-        super(EnhancedCNN, self).__init__()
+    pooled_outputs = [x]
+    print(
+        f"Shape prima di MaxPooling (pool_size={pool_sizes[0]}): {x.shape}")
+    for size in pool_sizes:
+        # Pooling
+        pooled = layers.MaxPooling2D(pool_size=(height // size, width // size),
+                                         strides=(height // size, width // size), padding='same')(x)
+        pooled = layers.Conv2D(512, 1, activation='relu')(pooled)
+        print(f"Shape dopo MaxPooling (pool_size={size}): {pooled.shape}")
+        # Upsampling con Conv2DTranspose
+        pooled = layers.Conv2DTranspose(512, kernel_size=3, strides=(height // size, width // size), padding='same')(
+            pooled)
+        print(f"Shape dopo Conv2D (512, 1): {pooled.shape}")  # Log della shape dopo la convoluzione
 
-        # 📌 **Feature Extraction (Convolutional Layers)**
-        self.conv1 = tfkl.Conv2D(32, (3, 3), activation='relu', padding='same')
-        self.conv2 = tfkl.Conv2D(32, (3, 3), activation='relu', padding='same')
-        self.pool1 = tfkl.MaxPooling2D((2, 2))
-
-        self.conv3 = tfkl.Conv2D(64, (3, 3), activation='relu', padding='same')
-        self.conv4 = tfkl.Conv2D(64, (3, 3), activation='relu', padding='same')
-        self.pool2 = tfkl.MaxPooling2D((2, 2))
-
-        self.conv5 = tfkl.Conv2D(128, (3, 3), activation='relu', padding='same')
-        self.conv6 = tfkl.Conv2D(128, (3, 3), activation='relu', padding='same')
-        self.pool3 = tfkl.MaxPooling2D((2, 2))
-
-        self.conv7 = tfkl.Conv2D(256, (3, 3), activation='relu', padding='same')
-        self.conv8 = tfkl.Conv2D(256, (3, 3), activation='relu', padding='same')
-        self.pool4 = tfkl.MaxPooling2D((2, 2))
-
-        # 📌 **Flatten & Fully Connected Layers**
-        self.flatten = tfkl.Flatten()
-        self.dense1 = tfkl.Dense(512, activation='relu')
-        self.dropout1 = tfkl.Dropout(0.5)
-        self.dense2 = tfkl.Dense(256, activation='relu')
-        self.dropout2 = tfkl.Dropout(0.5)
-        self.output_layer = tfkl.Dense(output_shape, activation='sigmoid' if output_shape == 1 else 'softmax')
-
-    def call(self, inputs, training=False):
-        """ Definisce il forward pass del modello. """
-        x = self.conv1(inputs)
-        x = self.conv2(x)
-        x = self.pool1(x)
-
-        x = self.conv3(x)
-        x = self.conv4(x)
-        x = self.pool2(x)
-
-        x = self.conv5(x)
-        x = self.conv6(x)
-        x = self.pool3(x)
-
-        x = self.conv7(x)
-        x = self.conv8(x)
-        x = self.pool4(x)
-
-        x = self.flatten(x)
-        x = self.dense1(x)
-        x = self.dropout1(x, training=training)
-        x = self.dense2(x)
-        x = self.dropout2(x, training=training)
-        return self.output_layer(x)
-
-    def build(self, input_shape):
-        """ 📌 Costruisce il modello con un input shape corretto """
-        super(EnhancedCNN, self).build(input_shape)
+        # Aggiungi il risultato alla lista
+        pooled_outputs.append(pooled)
+    # Concatenazione dei risultati
+    return layers.Concatenate()(pooled_outputs)
 
 
 
+# MResNet Model
+def MResNet(input_shape=CONFIG['model']['input_shape'],
+            num_classes=CONFIG['model']['output_shape'],
+            output_activation='sigmoid' if CONFIG['model']['output_shape'] == 1 else 'softmax',
+            loss_fn = loss_fns,
+            metrics=metrics_train,
+            optimizer=tfk.optimizers.AdamW(learning_rate=lr),):
 
-def build_enhanced_model(input_shape=CONFIG['model']['input_shape'],
-                output_shape=CONFIG['model']['output_shape'],
-                loss_fn=loss_fns,
-                optimizer=tfk.optimizers.AdamW(learning_rate=CONFIG['training']['learning_rate']),
-                metrics=metrics_train,
-                plot=True):
-    """
-    Costruisce e compila l'Enhanced CNN.
+    inputs = layers.Input(shape=input_shape)
+    x = layers.Conv2D(64, (7, 7), strides=2, padding='same', activation='relu')(inputs)
+    x = layers.BatchNormalization()(x)
+    x = layers.MaxPooling2D((3, 3), strides=2, padding='same')(x)
 
-    :param input_shape: Dimensione dell'input (es. (224, 224, 3)).
-    :param output_shape: Numero di classi in output.
-    :param loss_fn: Funzione di loss scelta.
-    :param optimizer: Ottimizzatore (default: AdamW).
-    :param metrics: Metriche da monitorare.
-    :param plot: Se True, stampa il summary del modello.
-    :return: Modello compilato pronto per il training.
-    """
+    # Residual Blocks
+    for filters in [64, 128, 256, 512]:
+        x = residual_block(x, filters)
 
-    model = EnhancedCNN(input_shape=input_shape, output_shape=output_shape)
-    dummy_input = tf.keras.Input(shape=input_shape)
-    _ = model(dummy_input)
+    # PPM Module
+    x = pyramid_pooling_module(x)
 
-    # Compila il modello
+    # Classification Head
+    x = layers.GlobalAveragePooling2D()(x)
+    x = layers.Dense(512, activation='relu')(x)
+    x = layers.Dropout(0.3)(x)
+    outputs = layers.Dense(num_classes, activation=output_activation)(x)
+
+    model = models.Model(inputs, outputs)
     model.compile(loss=loss_fn, optimizer=optimizer, metrics=metrics)
-    app_logger.info("Enhanced model correctly compiled")
-
-    if plot:
-        model.build((None, input_shape[0], input_shape[1], 3))
-        model.summary(expand_nested=True, show_trainable=True)
+    app_logger.info("Model correctly compiled")
 
     return model
 
 
+# Create model
+
+
 if __name__ == '__main__':
-    model = build_enhanced_model()
+    # model = build_model()
+    model = MResNet()
+    model.summary()

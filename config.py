@@ -52,7 +52,7 @@ CONFIG = {
     },
     "preprocessing": {
         "resize": (224, 224),
-        "normalization_type": "min-max",
+        "normalization_type": "None",
         "clipping_range": (-1000, 3000),
         "median_filter_size": 3,
         "clahe_clip_limit": 7.0,
@@ -72,7 +72,7 @@ CONFIG = {
         "input_shape": (224, 224, 3),
         "output_shape": 1,
         "backbone": "resnet50",
-        "preprocess_input": False,
+        "preprocess_input": True,
         "type": "custom",
     },
     "logging": {

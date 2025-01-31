@@ -5,7 +5,7 @@ from pygments.lexers import configs
 from logging_utils import app_logger, configure_keras_logging
 from config import CONFIG
 from data_loader_class import DataLoader
-from model import build_model, MResNet
+from model import build_model, MResNet, build_model_2
 from evaluation_utils import evaluate_results
 from training import get_callbacks
 from global_utils import global_library_setup, convert_dict_to_json
@@ -25,8 +25,8 @@ if __name__ == '__main__':
 
     # Creazione del modello
     # model = build_model()
-    model = MResNet()
-
+    # model = MResNet()
+    model = build_model_2()
 
     # creazione directory di salvataggio se non esistono
     os.makedirs(CONFIG['output']['save_model_path'], exist_ok=True)

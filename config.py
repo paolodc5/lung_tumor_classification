@@ -71,7 +71,7 @@ CONFIG = {
     "model": {
         "input_shape": (224, 224, 3),
         "output_shape": 1,
-        "backbone": "resnet50",
+        "backbone": "convnext_small",
         "preprocess_input": True,
         "type": "custom",
     },

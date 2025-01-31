@@ -32,6 +32,9 @@ def evaluate_results(history, model, class_names=None):
     output_dir = CONFIG['output']['save_path']
     os.makedirs(output_dir, exist_ok=True)
 
+    # salva il json dict history
+    convert_dict_to_json(history.history, file_name='history.json')
+
     # Ottieni dati di test e etichette vere dal generatore
     test_data, test_labels = get_test_data_and_labels(test_generator)
 

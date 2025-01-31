@@ -42,8 +42,8 @@ CONFIG = {
         }
     },
     "data": {
-        "dataset_path": KAGGLE_DATA_PATH,
-        "train_path": KAGGLE_TRAIN_PATH,
+        "dataset_path": LOCAL_DATA_PATH,
+        "train_path": LOCAL_TRAIN_PATH,
         "train_split": 0.7,
         "validation_split": 0.1,
         "test_split": 0.2,

@@ -52,7 +52,7 @@ CONFIG = {
     },
     "preprocessing": {
         "resize": (224, 224),
-        "normalization_type": "None",
+        "normalization_type": "min-max",
         "clipping_range": (-1000, 3000),
         "median_filter_size": 3,
         "clahe_clip_limit": 7.0,

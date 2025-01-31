@@ -35,15 +35,15 @@ def get_augmentation(images, seed=CONFIG['general']['seed']):
     augmentation_layer = tf.keras.Sequential([
         tf.keras.layers.RandomFlip("horizontal_and_vertical", seed=seed),
         tf.keras.layers.RandomRotation(0.2, fill_mode='constant', fill_value=0, seed=seed),
-        RandomContrast(lower=0.7, upper=1.3, seed=seed),
+        RandomContrast(lower=0.7, upper=1.3, norm_type=CONFIG['preprocessing']['normalization_type'], seed=seed),
         RandomShear(shear_range=0.2, seed=seed),
         RandomCutout(mask_height=30, mask_width=30, seed=seed)
-    ])
 
+    ])
     # RandomBrightness(max_delta=0.3, seed=seed)
 
     images = augmentation_layer(images, training=True)
-    images = tf.cast(images, tf.uint8)
+    images = tf.cast(images, tf.uint8) if CONFIG['preprocessing']['normalization_type'] in ['None', 'none'] else tf.cast(images, tf.float32)
     images = images.numpy()
 
     return images
@@ -122,7 +122,7 @@ class RandomShear(tf.keras.layers.Layer):
 
 
 class RandomBrightness(tf.keras.layers.Layer):
-    def __init__(self, max_delta, seed=None, **kwargs):
+    def __init__(self, max_delta, seed=None, norm_type='None', **kwargs):
         """
         Layer per applicare Random Brightness con normalizzazione dei valori tra 0 e 1,
         e successiva riconversione a uint8 (0-255).
@@ -135,6 +135,7 @@ class RandomBrightness(tf.keras.layers.Layer):
         super(RandomBrightness, self).__init__(**kwargs)
         self.max_delta = max_delta
         self.seed = seed
+        self.norm_type = norm_type
 
     def call(self, inputs, training=True):
         """
@@ -151,7 +152,16 @@ class RandomBrightness(tf.keras.layers.Layer):
             return tf.cast(inputs, tf.uint8)  # Ritorna le immagini originali in uint8 in modalità inference
 
         # Normalizza l'immagine da [0, 255] a [0, 1]
-        inputs = tf.cast(inputs, tf.float32) / 255.0
+        if self.norm_type in ['None', 'none']:
+            inputs = tf.cast(inputs, tf.float32) / 255.0
+
+        elif self.norm_type in ['min-max', 'MinMax', 'minmax', 'min_max']:
+            pass
+
+        elif self.norm_type in ['z_score', 'zscore', 'z-score']:
+            min_val = tf.reduce_min(inputs, axis=[1, 2, 3], keepdims=True)
+            max_val = tf.reduce_max(inputs, axis=[1, 2, 3], keepdims=True)
+            inputs = (inputs - min_val) / (max_val - min_val + 1e-7)  # Normalizzazione a [0, 1]
 
         # Genera un valore casuale per la variazione di luminosità
         delta = tf.random.uniform(
@@ -164,13 +174,23 @@ class RandomBrightness(tf.keras.layers.Layer):
         # Modifica la luminosità aggiungendo il delta
         brightened = tf.clip_by_value(inputs + delta, 0.0, 1.0)
 
+        im=brightened
         # Riporta i valori a [0, 255] e converte in uint8
-        return tf.cast(brightened * 255.0, tf.uint8)
+        if self.norm_type in ['None','none']:
+            im = tf.cast(brightened * 255.0, tf.uint8)
+        elif self.norm_type in ['min-max','MinMax','minmax','min_max']:
+            pass
+        elif self.norm_type in ['z_score','zscore','z-score']:
+            mean = tf.reduce_mean(brightened, axis=[1, 2, 3], keepdims=True)
+            std = tf.math.reduce_std(brightened, axis=[1, 2, 3], keepdims=True)
+            im = (brightened - mean) / (std + 1e-7)
+
+        return im
 
 
 
 class RandomContrast(tf.keras.layers.Layer):
-    def __init__(self, lower, upper, seed=None, **kwargs):
+    def __init__(self, lower, upper, seed=None, norm_type='None', **kwargs):
         """
         Layer per applicare Random Contrast con normalizzazione dei valori tra 0 e 1,
         e successiva riconversione a uint8 (0-255).
@@ -184,6 +204,7 @@ class RandomContrast(tf.keras.layers.Layer):
         self.lower = lower
         self.upper = upper
         self.seed = seed
+        self.norm_type = norm_type
 
     def call(self, inputs, training=True):
         """
@@ -199,8 +220,18 @@ class RandomContrast(tf.keras.layers.Layer):
         if not training:
             return tf.cast(inputs, tf.uint8)  # Nessuna modifica in inferenza
 
-        # Normalizza l'immagine da [0, 255] a [0, 1]
-        inputs = tf.cast(inputs, tf.float32) / 255.0
+
+        if self.norm_type in ['None','none']:
+            inputs = tf.cast(inputs, tf.float32) / 255.0
+
+        elif self.norm_type in ['min-max','MinMax','minmax','min_max']:
+            pass
+
+        elif self.norm_type in ['z_score','zscore','z-score']:
+            min_val = tf.reduce_min(inputs, axis=[1, 2, 3], keepdims=True)
+            max_val = tf.reduce_max(inputs, axis=[1, 2, 3], keepdims=True)
+            inputs = (inputs - min_val) / (max_val - min_val + 1e-7)  # Normalizzazione a [0, 1]
+
 
         # Genera un valore casuale per il fattore di contrasto
         contrast_factor = tf.random.uniform(
@@ -216,8 +247,18 @@ class RandomContrast(tf.keras.layers.Layer):
         # Modifica il contrasto
         contrasted = tf.clip_by_value((inputs - means) * contrast_factor + means, 0.0, 1.0)
 
+        im=contrasted
         # Riporta i valori a [0, 255] e converte in uint8
-        return tf.cast(contrasted * 255.0, tf.uint8)
+        if self.norm_type in ['None','none']:
+            im = tf.cast(contrasted * 255.0, tf.uint8)
+        elif self.norm_type in ['min-max','MinMax','minmax','min_max']:
+            pass
+        elif self.norm_type in ['z_score','zscore','z-score']:
+            mean = tf.reduce_mean(contrasted, axis=[1, 2, 3], keepdims=True)
+            std = tf.math.reduce_std(contrasted, axis=[1, 2, 3], keepdims=True)
+            im = (contrasted - mean) / (std + 1e-7)
+
+        return im
 
 
 

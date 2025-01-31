@@ -80,7 +80,7 @@ def build_model(backbone=backbone_dict[CONFIG['model']['backbone']][0],
     return tl_model
 
 
-def build_model_2(backbone=backbone_dict['convnext_small'][0],
+def build_model_2(backbone=backbone_dict[CONFIG['model']['backbone']][0],
                 input_shape=CONFIG['model']['input_shape'],
                 output_shape=CONFIG['model']['output_shape'],
                 pooling=None,

@@ -23,7 +23,7 @@ CONFIG = {
     "training": {
         "epochs": 150,
         "batch_size": 32,
-        "learning_rate": 0.00001,
+        "learning_rate": 0.0001,
         "optimizer": "adamW",
         "loss_function": "binary_crossentropy",
         "augmentation": True,
@@ -57,13 +57,13 @@ CONFIG = {
         "median_filter_size": 3,
         "clahe_clip_limit": 7.0,
         "clahe_tile_grid_size": (20, 20),
-        "morph_kernel_size": 3,
+        "morph_kernel_size": 2,
         "pipeline":{
             "cropping": True,
             "median_filtering": True,
-            "he": True,
+            "he": False,
             "clahe": True,
-            "opening": True,
+            "opening": False,
             "closing": False,
             "convert_to_rgb": True
         }
